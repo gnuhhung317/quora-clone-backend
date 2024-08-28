@@ -1,6 +1,7 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
+import net.duchung.quora.utils.Utils;
 import net.duchung.quora.dto.CommentDto;
 import net.duchung.quora.entity.Answer;
 import net.duchung.quora.entity.Comment;
@@ -32,6 +33,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto createComment(CommentDto commentDto) {
         Comment comment = toEntity(commentDto);
+        comment.getAnswer().setViralPoints(comment.getAnswer().getViralPoints()+1);
 
         Comment savedComment= commentRepository.save(comment);
         return toDto(savedComment);
@@ -52,6 +54,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
 
+
         comment.setContent(commentDto.getContent());
         comment.setUser(user.get());
         comment.setAnswer(answer.get());
@@ -63,7 +66,12 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
 
     public void deleteCommentById(Long id) {
+        Comment comment =commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
+
         commentRepository.deleteById(id);
+
+        Answer answer = comment.getAnswer();
+        answer.setViralPoints(answer.getViralPoints()- Utils.COMMENT_POINTS);
     }
 
     @Override
@@ -94,4 +102,5 @@ public class CommentServiceImpl implements CommentService {
         comment.setAnswer(answer.get());
         return comment;
     }
+
 }

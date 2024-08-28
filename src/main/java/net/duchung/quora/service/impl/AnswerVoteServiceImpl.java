@@ -1,6 +1,6 @@
 package net.duchung.quora.service.impl;
 
-import net.duchung.quora.Utils;
+import net.duchung.quora.utils.Utils;
 import net.duchung.quora.dto.response.CastVoteResponse;
 import net.duchung.quora.dto.response.VoteStatusResponse;
 import net.duchung.quora.entity.vote.AnswerVote;

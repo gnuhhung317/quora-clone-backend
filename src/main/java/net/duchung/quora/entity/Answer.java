@@ -28,6 +28,7 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AnswerVote> votes;
     @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE)
