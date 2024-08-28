@@ -33,5 +33,10 @@ public class Answer extends BaseEntity {
     @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE)
     private Set<Comment> comments;
 
+    public void addComment(Comment comment) {
+        comment.setAnswer(this);
+        comments.add(comment);
+
+    }
 
 }

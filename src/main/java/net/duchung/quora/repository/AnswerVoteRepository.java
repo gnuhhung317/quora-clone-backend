@@ -12,10 +12,10 @@ import java.util.Optional;
 public interface AnswerVoteRepository extends JpaRepository<AnswerVote, Long> {
 
     @Query("SELECT COUNT(av) FROM AnswerVote av WHERE av.answer.id = :id AND av.isUpvote = true")
-    Integer countUpvotesByAnswerId(@Param("id") Long id);
+    Long countUpvotesByAnswerId(@Param("id") Long id);
 
     @Query("SELECT COUNT(av) FROM AnswerVote av WHERE av.answer.id = :id AND av.isUpvote = false")
-    Integer countDownvotesByAnswerId(@Param("id") Long id);
+    Long countDownvotesByAnswerId(@Param("id") Long id);
 
     Optional<AnswerVote> findByAnswerIdAndVoterId(Long answerId, Long userId);
     void deleteByAnswerIdAndVoterId(Long answerId, Long userId);

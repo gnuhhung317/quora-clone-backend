@@ -1,16 +1,18 @@
 package net.duchung.quora.service;
 
+import net.duchung.quora.dto.response.CastVoteResponse;
+import net.duchung.quora.dto.response.VoteStatusResponse;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface VoteService {
-    void castVote(Long contentId, Long userId, boolean isUpvote);
+    CastVoteResponse castVote(Long contentId, Long userId, Boolean isUpvote);
 
     void removeVote(Long contentId, Long userId);
 
-    Integer countUpvotes(Long contentId);
-    Integer countDownvotes(Long contentId);
+    Long countUpvotes(Long contentId);
+    Long countDownvotes(Long contentId);
 
-    Boolean getVoteStatus(Long contentId, Long userId);
+    VoteStatusResponse getVotesStatus(Long id);
 
 }
