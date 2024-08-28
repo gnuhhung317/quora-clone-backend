@@ -25,19 +25,18 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "topic_id"))
     private Set<Topic> topics;
 
-    @ManyToMany
-    @JoinTable(name = "follows",
-    joinColumns = @JoinColumn(name = "follower_id"),
-    inverseJoinColumns = @JoinColumn(name = "following_id"))
-    private Set<User> followings;
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
+    private Set<Follow> followings;
 
-
-    @ManyToMany(mappedBy = "followings")
-    private Set<User> followers;
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
+    private Set<Follow> followers;
 
 
     @OneToMany(mappedBy = "voter",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<AnswerVote> answerVotes;
     @OneToMany(mappedBy = "voter",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<CommentVote> commentVotes;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<Question> questions;
 }

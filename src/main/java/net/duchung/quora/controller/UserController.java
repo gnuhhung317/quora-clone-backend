@@ -42,28 +42,24 @@ public class UserController {
 
     @PostMapping("/follow/{followerId}/{followingId}")
     public ResponseEntity<FollowResponse> follow(@PathVariable Long followerId, @PathVariable Long followingId) {
-        boolean result = userService.follow(followerId, followingId);
-        FollowResponse followResponse = new FollowResponse();
-        followResponse.setType("follow");
-        followResponse.setSuccess(result);
+        FollowResponse followResponse = userService.follow(followerId, followingId);
+
 
         return ResponseEntity.ok(followResponse);
     }
     @PostMapping("/unfollow/{followerId}/{followingId}")
     public ResponseEntity<FollowResponse> unfollow(@PathVariable Long followerId, @PathVariable Long followingId) {
-        boolean result = userService.unfollow(followerId, followingId);
-        FollowResponse followResponse = new FollowResponse();
-        followResponse.setType("unfollow");
-        followResponse.setSuccess(result);
+        FollowResponse followResponse = userService.unfollow(followerId, followingId);
+
         return ResponseEntity.ok(followResponse);
     }
-    @PostMapping("/followTopics")
-    public ResponseEntity<String> chooseTopic(@RequestParam Long id,@RequestParam List<Long> topicIds) {
+    @PostMapping("/{id}/followTopics")
+    public ResponseEntity<String> chooseTopic(@PathVariable Long id,@RequestParam List<Long> topicIds) {
         userService.followTopics(id,topicIds);
         return ResponseEntity.ok("Follow successfully");
     }
-    @PostMapping("/unfollowTopics")
-    public ResponseEntity<String> unfollowTopics(@RequestParam Long id,@RequestParam List<Long> topicIds) {
+    @PostMapping("/{id}/unfollowTopics")
+    public ResponseEntity<String> unfollowTopics(@PathVariable Long id,@RequestParam List<Long> topicIds) {
         userService.unfollowTopics(id,topicIds);
         return ResponseEntity.ok("Unfollow successfully");
     }

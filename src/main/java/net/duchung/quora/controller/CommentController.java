@@ -13,8 +13,8 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("")
-    public ResponseEntity<CommentDto> createComment() {
-        CommentDto commentDto = commentService.createComment(new CommentDto());
+    public ResponseEntity<CommentDto> createComment(@RequestBody CommentDto commentDto) {
+        commentDto = commentService.createComment(commentDto);
         return ResponseEntity.ok(commentDto);
     }
     @GetMapping("/{id}")

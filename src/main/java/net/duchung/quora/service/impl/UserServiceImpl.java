@@ -3,11 +3,14 @@ package net.duchung.quora.service.impl;
 import jakarta.transaction.Transactional;
 import net.duchung.quora.dto.UserDto;
 import net.duchung.quora.dto.request.RegisterRequest;
+import net.duchung.quora.dto.response.FollowResponse;
+import net.duchung.quora.entity.Follow;
 import net.duchung.quora.entity.Topic;
 import net.duchung.quora.entity.User;
 import net.duchung.quora.exception.DataNotFoundException;
 import net.duchung.quora.mapper.BaseMapper;
 import net.duchung.quora.mapper.UserMapper;
+import net.duchung.quora.repository.FollowRepository;
 import net.duchung.quora.repository.TopicRepository;
 import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.service.UserService;
@@ -16,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private TopicRepository topicRepository;
+
+    @Autowired
+    private FollowRepository followRepository;
     @Override
     @Transactional
     public UserDto createUser(RegisterRequest registerRequest) {
@@ -51,7 +59,8 @@ public class UserServiceImpl implements UserService {
         user.setFullName(userDto.getFullName());
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
-        user.setAvatarUrl(user.getAvatarUrl());
+        user.setAvatarUrl(userDto.getAvatarUrl());
+        user.setTopics(new HashSet<>(topicRepository.findAllById(userDto.getTopicIds())));
         User savedUser=userRepository.save(user);
         return toDto(savedUser);
     }
@@ -70,37 +79,57 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean follow(Long followerId, Long followingId) {
-        if(userRepository.existsById(followerId) && userRepository.existsById(followingId)) {
-            if(followerId.equals(followingId)) {
-                return false;
-            }
-            User user = userRepository.findById(followerId).get();
-            User following = userRepository.findById(followingId).get();
-            user.getFollowings().add(following);
-            following.getFollowers().add(user);
-            userRepository.save(user);
-            userRepository.save(following);
-            return true;
+    public FollowResponse follow(Long followerId, Long followingId) {
+        boolean isSuccess = false;
+
+        if (followerId.equals(followingId)) {
+            return new FollowResponse(isSuccess,"unfollow", "You cannot follow yourself.");
         }
-        return null;
+
+        User followerOpt = userRepository.findById(followerId).orElseThrow(() -> new DataNotFoundException("User with id " + followerId + " not found"));
+        User followingOpt = userRepository.findById(followingId).orElseThrow(() -> new DataNotFoundException("User with id " + followingId + " not found"));
+
+        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(followerOpt.getId(), followingOpt.getId()); // <11,4>
+        if (followOpt.isPresent()) {
+            return new FollowResponse(isSuccess,"follow", "You are already following this user.");
+        }else{
+            Follow follow = new Follow();
+            follow.setFollower(followerOpt);
+            follow.setFollowing(followingOpt);
+            followRepository.save(follow);
+            isSuccess = true;
+        }
+
+
+        FollowResponse followResponse = new FollowResponse();
+        followResponse.setType("follow");
+        followResponse.setSuccess(isSuccess);
+        return followResponse;
     }
 
     @Override
-    public Boolean unfollow(Long followerId, Long followingId) {
-        if(userRepository.existsById(followerId) && userRepository.existsById(followingId)) {
-            if(followerId.equals(followingId)) {
-                return false;
-            }
-            User user = userRepository.findById(followerId).get();
-            User following = userRepository.findById(followingId).get();
-            user.getFollowings().remove(following);
-            following.getFollowers().remove(user);
-            userRepository.save(user);
-            userRepository.save(following);
-            return true;
+    public FollowResponse unfollow(Long followerId, Long followingId) {
+        boolean isSuccess = false;
+
+        if (followerId.equals(followingId)) {
+            return new FollowResponse(isSuccess,"unfollow", "You cannot unfollow yourself.");
         }
-        return null;
+
+        User followerOpt = userRepository.findById(followerId).orElseThrow(() -> new DataNotFoundException("User with id " + followerId + " not found"));
+        User followingOpt = userRepository.findById(followingId).orElseThrow(() -> new DataNotFoundException("User with id " + followingId + " not found"));
+        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(followerOpt.getId(), followingOpt.getId());
+        if (followOpt.isEmpty()) {
+            return new FollowResponse(isSuccess,"unfollow", "You are not following this user.");
+        }else{
+            followRepository.deleteById(followOpt.get().getId());
+            isSuccess = true;
+        }
+
+
+        FollowResponse followResponse = new FollowResponse();
+        followResponse.setType("unfollow");
+        followResponse.setSuccess(isSuccess);
+        return followResponse;
     }
 
 

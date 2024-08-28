@@ -20,11 +20,11 @@ public class Question extends BaseEntity {
 
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "question_topic",
     joinColumns = @JoinColumn(name = "question_id"),
     inverseJoinColumns = @JoinColumn(name = "topic_id"))

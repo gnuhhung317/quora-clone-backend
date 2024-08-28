@@ -19,6 +19,7 @@ public class Answer extends BaseEntity {
 
     private String content;
 
+    private long viralPoints;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id",nullable = false)
     private Question question;
@@ -29,5 +30,8 @@ public class Answer extends BaseEntity {
 
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AnswerVote> votes;
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE)
+    private Set<Comment> comments;
+
 
 }

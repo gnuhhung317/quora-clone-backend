@@ -19,12 +19,14 @@ public class Comment extends BaseEntity {
 
     private String content;
 
+    private long viralPoints;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "answer_id")
+    @JoinColumn(name = "answer_id",nullable = false)
     private Answer answer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

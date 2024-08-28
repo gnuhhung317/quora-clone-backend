@@ -16,8 +16,9 @@ public class UserDto extends BaseDto {
     private String email;
 
     private String password;
+    private String avatarUrl;
 
-    private Set<TopicDto> topics;
+    private Set<Long> topicIds;
 
 
 

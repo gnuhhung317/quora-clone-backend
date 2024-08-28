@@ -15,6 +15,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 @Service
@@ -36,7 +37,7 @@ public class AnswerServiceImpl implements AnswerService {
             throw new DataNotFoundException("User with id "+answerDto.getUserId()+" not found");
         }
 
-        Answer answer = new Answer(answerDto.getContent(), questionRepository.findById(answerDto.getQuestionId()).get(), userRepository.findById(answerDto.getUserId()).get(), new HashSet<>());
+        Answer answer = new Answer(answerDto.getContent(), 0,questionRepository.findById(answerDto.getQuestionId()).get(), userRepository.findById(answerDto.getUserId()).get(), Collections.emptySet(),Collections.emptySet());
 
         Answer savedAnswer = answerRepository.save(answer);
         return toDto(savedAnswer);

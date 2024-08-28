@@ -2,7 +2,9 @@ package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
 import net.duchung.quora.dto.CommentDto;
+import net.duchung.quora.entity.Answer;
 import net.duchung.quora.entity.Comment;
+import net.duchung.quora.entity.User;
 import net.duchung.quora.exception.DataNotFoundException;
 import net.duchung.quora.mapper.BaseMapper;
 import net.duchung.quora.mapper.CommentMapper;
@@ -13,6 +15,8 @@ import net.duchung.quora.service.CommentService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -27,13 +31,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto createComment(CommentDto commentDto) {
-        if(!userRepository.existsById(commentDto.getUserId())) {
-            throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
-        }
-        if(!answerRepository.existsById(commentDto.getAnswerId())) {
-            throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
-        }
         Comment comment = toEntity(commentDto);
+
         Comment savedComment= commentRepository.save(comment);
         return toDto(savedComment);
     }
@@ -42,14 +41,20 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto updateComment(Long id,CommentDto commentDto) {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getId()+" not found"));
-        if(!userRepository.existsById(commentDto.getUserId())) {
+        Optional<User> user = userRepository.findById(comment.getUser().getId());
+        Optional<Answer> answer = answerRepository.findById(comment.getAnswer().getId());
+
+        if(user.isEmpty()) {
             throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
         }
-        if(!answerRepository.existsById(commentDto.getAnswerId())) {
+        if(answer.isEmpty()) {
             throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
         }
 
+
         comment.setContent(commentDto.getContent());
+        comment.setUser(user.get());
+        comment.setAnswer(answer.get());
         Comment savedComment = commentRepository.save(comment);
         return toDto(savedComment);
     }
@@ -70,8 +75,23 @@ public class CommentServiceImpl implements CommentService {
         BaseMapper.getBaseDtoAttribute(commentDto,comment);
         return commentDto;
     }
-    private Comment toEntity(CommentDto commentDto) {   Comment comment = COMMENT_MAPPER.toComment(commentDto);
-//        BaseMapper.getBaseEntityAttribute(comment,commentDto);
+    private Comment toEntity(CommentDto commentDto) {
+        Comment comment = COMMENT_MAPPER.toComment(commentDto);
+        Optional<User> user = userRepository.findById(comment.getUser().getId());
+        Optional<Answer> answer = answerRepository.findById(comment.getAnswer().getId());
+
+        if(user.isEmpty()) {
+            throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
+        }
+        if(answer.isEmpty()) {
+            throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
+        }
+        if(commentDto.getParentId() != null) {
+            Comment parentComment = commentRepository.findById(commentDto.getParentId()).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getParentId()+" not found"));
+            comment.setParentComment(parentComment);
+        }
+        comment.setUser(user.get());
+        comment.setAnswer(answer.get());
         return comment;
     }
 }

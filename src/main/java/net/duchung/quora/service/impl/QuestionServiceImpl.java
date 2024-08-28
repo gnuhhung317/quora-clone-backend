@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import net.duchung.quora.dto.QuestionDto;
 import net.duchung.quora.entity.Question;
 import net.duchung.quora.entity.Topic;
+import net.duchung.quora.entity.User;
 import net.duchung.quora.exception.DataNotFoundException;
 import net.duchung.quora.mapper.QuestionMapper;
 import net.duchung.quora.repository.QuestionRepository;
@@ -14,8 +15,10 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -32,14 +35,14 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public QuestionDto createQuestion(QuestionDto questionDto) {
+        Optional<User> userOpt = userRepository.findById(questionDto.getUserId());
+        if(userOpt.isEmpty()) {
 
-        if(!userRepository.existsById(questionDto.getUserId())){
-
-            throw new DataNotFoundException("User with id "+" not found");
+            throw new DataNotFoundException("User with id "+questionDto.getUserId()+" not found");
         }
 //        List<Topic> topics = topicRepository.findAllById(questionDto.getTopicIds());
         Question question = QUESTION_MAPPER.toQuestion(questionDto);
-
+        question.setUser(userOpt.get());
         Question savedQuestion = questionRepository.save(question);
 
         return QUESTION_MAPPER.toQuestionDto(savedQuestion);
@@ -52,7 +55,8 @@ public class QuestionServiceImpl implements QuestionService {
 
         question.setTitle(questionDto.getTitle());
         question.setTopics(new HashSet<>(topicRepository.findAllById(questionDto.getTopicIds())));
-        return QUESTION_MAPPER.toQuestionDto(questionRepository.save(question));
+        Question savedQuestion = questionRepository.save(question);
+        return QUESTION_MAPPER.toQuestionDto(questionRepository.save(savedQuestion));
     }
 
     @Override
