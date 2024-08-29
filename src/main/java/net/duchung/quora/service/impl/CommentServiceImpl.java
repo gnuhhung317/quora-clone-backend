@@ -1,6 +1,7 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
+import net.duchung.quora.service.UserService;
 import net.duchung.quora.utils.Utils;
 import net.duchung.quora.dto.CommentDto;
 import net.duchung.quora.entity.Answer;
@@ -32,8 +33,30 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto createComment(CommentDto commentDto) {
-        Comment comment = toEntity(commentDto);
-        comment.getAnswer().setViralPoints(comment.getAnswer().getViralPoints()+1);
+//        Comment comment = toEntity(commentDto);
+        Optional<User> userOpt = userRepository.findById(commentDto.getUserId());
+        Optional<Answer> answerOpt = answerRepository.findById(commentDto.getAnswerId());
+
+        if(userOpt.isEmpty()) {
+            throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
+        }
+        if(answerOpt.isEmpty()) {
+            throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
+        }
+        Comment comment = new Comment();
+        comment.setContent(commentDto.getContent());
+        if(commentDto.getParentId() != null) {
+            Comment parentComment = commentRepository.findById(commentDto.getParentId()).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getParentId()+" not found"));
+            comment.setParentComment(parentComment);
+        }
+        User user = userOpt.get();
+        Answer answer = answerOpt.get();
+
+        answer.setViralPoints(answer.getViralPoints()+Utils.VOTE_POINTS);
+        Answer savedAnswer = answerRepository.save(answer);
+
+        comment.setUser(user);
+        comment.setAnswer(savedAnswer);
 
         Comment savedComment= commentRepository.save(comment);
         return toDto(savedComment);
@@ -43,28 +66,34 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto updateComment(Long id,CommentDto commentDto) {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getId()+" not found"));
-        Optional<User> user = userRepository.findById(comment.getUser().getId());
-        Optional<Answer> answer = answerRepository.findById(comment.getAnswer().getId());
+        Optional<User> userOpt = userRepository.findById(comment.getUser().getId());
+        Optional<Answer> answerOpt = answerRepository.findById(comment.getAnswer().getId());
 
-        if(user.isEmpty()) {
+        if(userOpt.isEmpty()) {
             throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
         }
-        if(answer.isEmpty()) {
+        if(answerOpt.isEmpty()) {
             throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
         }
 
+        User user = userOpt.get();
+        Answer answer = answerOpt.get();
 
 
+
+        answer.setViralPoints(answer.getViralPoints()+Utils.VOTE_POINTS);
+        Answer savedAnswer = answerRepository.save(answer);
+
+        comment.setAnswer(savedAnswer);
         comment.setContent(commentDto.getContent());
-        comment.setUser(user.get());
-        comment.setAnswer(answer.get());
+        comment.setUser(user);
+
         Comment savedComment = commentRepository.save(comment);
         return toDto(savedComment);
     }
 
     @Override
     @Transactional
-
     public void deleteCommentById(Long id) {
         Comment comment =commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
 
@@ -72,12 +101,14 @@ public class CommentServiceImpl implements CommentService {
 
         Answer answer = comment.getAnswer();
         answer.setViralPoints(answer.getViralPoints()- Utils.COMMENT_POINTS);
+        answerRepository.save(answer);
     }
 
     @Override
     public CommentDto getCommentById(Long id) {
         return commentRepository.findById(id).map(this::toDto).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
     }
+
     private CommentDto toDto(Comment comment) {
         CommentDto commentDto=COMMENT_MAPPER.toCommentDto(comment);
         BaseMapper.getBaseDtoAttribute(commentDto,comment);
@@ -85,21 +116,7 @@ public class CommentServiceImpl implements CommentService {
     }
     private Comment toEntity(CommentDto commentDto) {
         Comment comment = COMMENT_MAPPER.toComment(commentDto);
-        Optional<User> user = userRepository.findById(comment.getUser().getId());
-        Optional<Answer> answer = answerRepository.findById(comment.getAnswer().getId());
 
-        if(user.isEmpty()) {
-            throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
-        }
-        if(answer.isEmpty()) {
-            throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
-        }
-        if(commentDto.getParentId() != null) {
-            Comment parentComment = commentRepository.findById(commentDto.getParentId()).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getParentId()+" not found"));
-            comment.setParentComment(parentComment);
-        }
-        comment.setUser(user.get());
-        comment.setAnswer(answer.get());
         return comment;
     }
 

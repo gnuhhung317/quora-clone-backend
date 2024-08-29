@@ -13,11 +13,14 @@ import net.duchung.quora.mapper.UserMapper;
 import net.duchung.quora.repository.FollowRepository;
 import net.duchung.quora.repository.TopicRepository;
 import net.duchung.quora.repository.UserRepository;
+import net.duchung.quora.service.FileService;
 import net.duchung.quora.service.UserService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +29,8 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
     private static final UserMapper USER_MAPPER = Mappers.getMapper(UserMapper.class);
+    @Autowired
+    private CloudinaryService cloudinaryService;
     @Autowired
     private UserRepository userRepository;
 
@@ -161,6 +166,15 @@ public class UserServiceImpl implements UserService {
         userDto.setPassword(registerRequest.getPassword());
         return userDto;
     }
+
+    @Override
+    @Transactional
+    public String uploadAvatar(MultipartFile avatar) {
+
+        return cloudinaryService.uploadImage(avatar).get("secure_url").toString();
+
+    }
+
     private UserDto toDto(User user) {
         UserDto userDto = USER_MAPPER.toUserDto(user);
         BaseMapper.getBaseDtoAttribute(userDto, user);
@@ -172,4 +186,5 @@ public class UserServiceImpl implements UserService {
         BaseMapper.getBaseEntityAttribute(user, userDto);
         return user;
     }
+
 }

@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import net.duchung.quora.dto.AnswerDto;
 import net.duchung.quora.dto.response.UserResponseDto;
 import net.duchung.quora.entity.Answer;
+import net.duchung.quora.entity.Question;
+import net.duchung.quora.entity.User;
 import net.duchung.quora.exception.DataNotFoundException;
 import net.duchung.quora.mapper.AnswerMapper;
 import net.duchung.quora.mapper.BaseMapper;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 
 @Service
 public class AnswerServiceImpl implements AnswerService {
@@ -30,14 +33,17 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     @Transactional
     public AnswerDto createAnswer(AnswerDto answerDto) {
-        if(!questionRepository.existsById(answerDto.getQuestionId())) {
-            throw new DataNotFoundException("Question with id "+answerDto.getQuestionId()+" not found");
-        }
-        if(!userRepository.existsById(answerDto.getUserId())) {
+        Optional<User> userOpt = userRepository.findById(answerDto.getUserId());
+        Optional<Question> questionOpt = questionRepository.findById(answerDto.getQuestionId());
+        if(userOpt.isEmpty()) {
             throw new DataNotFoundException("User with id "+answerDto.getUserId()+" not found");
         }
 
-        Answer answer = new Answer(answerDto.getContent(), 0,questionRepository.findById(answerDto.getQuestionId()).get(), userRepository.findById(answerDto.getUserId()).get(), Collections.emptySet(),Collections.emptySet());
+        if(questionOpt.isEmpty()) {
+            throw new DataNotFoundException("Question with id "+answerDto.getQuestionId()+" not found");
+        }
+
+        Answer answer = new Answer(answerDto.getContent(), 0,questionOpt.get(), userOpt.get(), Collections.emptySet(),Collections.emptySet());
 
         Answer savedAnswer = answerRepository.save(answer);
         return toDto(savedAnswer);

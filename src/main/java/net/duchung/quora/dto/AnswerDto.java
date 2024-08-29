@@ -19,6 +19,8 @@ public class AnswerDto extends BaseDto {
     private String userFullName;
     private String userAvatarUrl;
 
+    private long viralPoints;
+
     private Long upvotes;
 
     private Long downvotes;

@@ -4,10 +4,13 @@ import net.duchung.quora.dto.UserDto;
 import net.duchung.quora.dto.request.RegisterRequest;
 import net.duchung.quora.dto.response.FollowResponse;
 import net.duchung.quora.entity.User;
+import net.duchung.quora.service.FileService;
 import net.duchung.quora.service.UserService;
+import net.duchung.quora.service.impl.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,6 +18,8 @@ import java.util.List;
 @RequestMapping("${api.base.url}/users")
 public class UserController {
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
     @Autowired
     private UserService userService;
     @GetMapping("/{id}")
@@ -63,5 +68,12 @@ public class UserController {
         userService.unfollowTopics(id,topicIds);
         return ResponseEntity.ok("Unfollow successfully");
     }
+
+    @PostMapping("upload/avatar")
+    public ResponseEntity<String> uploadAvatar(@RequestBody MultipartFile avatar) {
+        String secureUrl =userService.uploadAvatar(avatar);
+        return ResponseEntity.ok(secureUrl);
+    }
+
 
 }

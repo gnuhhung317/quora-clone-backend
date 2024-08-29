@@ -15,6 +15,7 @@ public class CommentDto extends BaseDto {
     private String userFullName;
     private String userAvatarUrl;
     private Long parentId;
+    private long viralPoints;
     private Long upvotes;
     private Long downvotes;
 }

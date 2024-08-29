@@ -54,3 +54,10 @@ Database Design: Entities like User, Question, Answer, Topic, and Vote will be c
 Caching: Use caching (e.g., Redis) for frequent queries like upvote counts or popular questions.
 Microservices: Modularizing services for user management, content management, etc., can improve maintainability.
 Search Indexing: Implement search features using Elasticsearch or similar tools for fast and relevant results.
+
+recommendation system
+suggest by: most viral follow topic
+            most recent follow topic
+            most recent follow answer
+            follow topic follow answer interact
+            topic interact before

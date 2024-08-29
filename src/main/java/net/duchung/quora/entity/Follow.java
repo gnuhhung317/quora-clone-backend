@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "follows")
+@Table(name = "follows",uniqueConstraints =
+    @UniqueConstraint(columnNames = {"follower_id", "following_id"}))
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-
 public class Follow {
 
     @Id
