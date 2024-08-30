@@ -1,6 +1,8 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
+import net.duchung.quora.exception.AccessDeniedException;
+import net.duchung.quora.service.AuthService;
 import net.duchung.quora.service.UserService;
 import net.duchung.quora.utils.Utils;
 import net.duchung.quora.dto.CommentDto;
@@ -18,6 +20,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,27 +33,25 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    AuthService authService;
     @Override
     @Transactional
     public CommentDto createComment(CommentDto commentDto) {
 //        Comment comment = toEntity(commentDto);
-        Optional<User> userOpt = userRepository.findById(commentDto.getUserId());
-        Optional<Answer> answerOpt = answerRepository.findById(commentDto.getAnswerId());
+        User user = userRepository.findById(commentDto.getUserId()).orElseThrow(() -> new DataNotFoundException("User with id "+commentDto.getUserId()+" not found"));
+        Answer answer = answerRepository.findById(commentDto.getAnswerId()).orElseThrow(() -> new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found"));
 
-        if(userOpt.isEmpty()) {
-            throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
-        }
-        if(answerOpt.isEmpty()) {
-            throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
-        }
+
+
         Comment comment = new Comment();
         comment.setContent(commentDto.getContent());
         if(commentDto.getParentId() != null) {
             Comment parentComment = commentRepository.findById(commentDto.getParentId()).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getParentId()+" not found"));
             comment.setParentComment(parentComment);
         }
-        User user = userOpt.get();
-        Answer answer = answerOpt.get();
+
 
         answer.setViralPoints(answer.getViralPoints()+Utils.VOTE_POINTS);
         Answer savedAnswer = answerRepository.save(answer);
@@ -65,21 +66,14 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto updateComment(Long id,CommentDto commentDto) {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getId()+" not found"));
-        Optional<User> userOpt = userRepository.findById(comment.getUser().getId());
-        Optional<Answer> answerOpt = answerRepository.findById(comment.getAnswer().getId());
 
-        if(userOpt.isEmpty()) {
-            throw new DataNotFoundException("User with id "+commentDto.getUserId()+" not found");
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
+        User user = authService.getCurrentUser();
+        Answer answer = answerRepository.findById(comment.getAnswer().getId()).orElseThrow(() -> new DataNotFoundException("Answer with id "+comment.getAnswer().getId()+" not found"));
+
+        if(!comment.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You don't have permission to update this comment");
         }
-        if(answerOpt.isEmpty()) {
-            throw new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found");
-        }
-
-        User user = userOpt.get();
-        Answer answer = answerOpt.get();
-
-
 
         answer.setViralPoints(answer.getViralPoints()+Utils.VOTE_POINTS);
         Answer savedAnswer = answerRepository.save(answer);
@@ -95,8 +89,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void deleteCommentById(Long id) {
-        Comment comment =commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
+        Long userId = authService.getCurrentUser().getId();
 
+        Comment comment =commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
+        if(!userId.equals(comment.getUser().getId())) {
+            throw new AccessDeniedException("You don't have permission to delete this comment");
+        }
         commentRepository.deleteById(id);
 
         Answer answer = comment.getAnswer();
@@ -107,6 +105,11 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto getCommentById(Long id) {
         return commentRepository.findById(id).map(this::toDto).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
+    }
+
+    @Override
+    public List<CommentDto> getCommentsByAnswerId(Long answerId) {
+        return commentRepository.findByAnswerId(answerId).stream().map(this::toDto).toList();
     }
 
     private CommentDto toDto(Comment comment) {

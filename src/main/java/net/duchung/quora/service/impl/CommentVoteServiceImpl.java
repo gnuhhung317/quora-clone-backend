@@ -1,5 +1,8 @@
 package net.duchung.quora.service.impl;
 
+import net.duchung.quora.entity.User;
+import net.duchung.quora.exception.AccessDeniedException;
+import net.duchung.quora.service.AuthService;
 import net.duchung.quora.utils.Utils;
 import net.duchung.quora.dto.response.CastVoteResponse;
 import net.duchung.quora.dto.response.VoteStatusResponse;
@@ -24,16 +27,23 @@ public class CommentVoteServiceImpl implements VoteService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AuthService authService;
+
     @Override
-    public CastVoteResponse castVote(Long commentId, Long userId, Boolean isUpvote) {
-        Optional<CommentVote> commentVoteOpt = commentVoteRepository.findByCommentIdAndVoterId(commentId, userId);
+    public CastVoteResponse castVote(Long commentId,  Boolean isUpvote) {
+        User user = authService.getCurrentUser();
+
+        Optional<CommentVote> commentVoteOpt = commentVoteRepository.findByCommentIdAndVoterId(commentId, user.getId());
         //insert vote if not exists
         //else update vote
         if (commentVoteOpt.isEmpty()) {
+
             CommentVote newCommentVote = new CommentVote();
             newCommentVote.setComment(commentRepository.findById(commentId).orElseThrow(() -> new DataNotFoundException("Answer not found")));
-            newCommentVote.setVoter(userRepository.findById(userId).orElseThrow(() -> new DataNotFoundException("User not found")));
+            newCommentVote.setVoter(user);
             newCommentVote.setIsUpvote(isUpvote);
+
             //increase viral points
             newCommentVote.getComment().setViralPoints(newCommentVote.getComment().getViralPoints() + Utils.VOTE_POINTS);
             commentVoteRepository.save(newCommentVote);
@@ -42,6 +52,7 @@ public class CommentVoteServiceImpl implements VoteService {
             castVoteResponse.setVoteType(isUpvote);
             castVoteResponse.setSuccess(true);
             castVoteResponse.setMessage("Vote casted successfully");
+
             return castVoteResponse;
         } else {
             CommentVote commentVote = commentVoteOpt.get();
@@ -83,8 +94,13 @@ public class CommentVoteServiceImpl implements VoteService {
     }
 
     @Override
-    public void removeVote(Long contentId, Long userId) {
-        commentVoteRepository.deleteByCommentIdAndVoterId(contentId, userId);
+    public void removeVote(Long contentId) {
+        User user = authService.getCurrentUser();
+        CommentVote commentVote = commentVoteRepository.findByCommentIdAndVoterId(contentId, user.getId()).orElseThrow(() -> new DataNotFoundException("Vote not found"));
+        if (!commentVote.getVoter().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You are not allowed to remove this vote");
+        }
+        commentVoteRepository.deleteByCommentIdAndVoterId(contentId, user.getId());
     }
 
     @Override

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("${api.base.url}/answers")
 public class AnswerController {
@@ -30,5 +32,9 @@ public class AnswerController {
     public ResponseEntity<Void> deleteAnswerById(@PathVariable Long id) {
         answerService.deleteAnswerById(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("")
+    public ResponseEntity<List<AnswerDto>> getAnswersByQuestionId(@RequestParam Long questionId) {
+        return ResponseEntity.ok(answerService.getAnswersByQuestionId(questionId));
     }
 }

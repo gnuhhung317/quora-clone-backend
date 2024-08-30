@@ -1,5 +1,9 @@
 package net.duchung.quora.service.impl;
 
+import jakarta.transaction.Transactional;
+import net.duchung.quora.entity.User;
+import net.duchung.quora.exception.AccessDeniedException;
+import net.duchung.quora.service.AuthService;
 import net.duchung.quora.utils.Utils;
 import net.duchung.quora.dto.response.CastVoteResponse;
 import net.duchung.quora.dto.response.VoteStatusResponse;
@@ -22,17 +26,20 @@ public class AnswerVoteServiceImpl implements VoteService
 
     @Autowired
     private AnswerRepository answerRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    private AuthService authService;
     @Override
-    public CastVoteResponse castVote(Long answerId, Long userId, Boolean isUpvote) {
-        Optional<AnswerVote> answerVoteOpt = answerVoteRepository.findByAnswerIdAndVoterId(answerId, userId);
+    @Transactional
+    public CastVoteResponse castVote(Long answerId, Boolean isUpvote) {
+        User user = authService.getCurrentUser();
+        Optional<AnswerVote> answerVoteOpt = answerVoteRepository.findByAnswerIdAndVoterId(answerId, user.getId());
         //insert vote if not exists
         //else update vote
         if(answerVoteOpt.isEmpty()) {
             AnswerVote newAnswerVote = new AnswerVote();
             newAnswerVote.setAnswer(answerRepository.findById(answerId).orElseThrow(() -> new DataNotFoundException("Answer not found")));
-            newAnswerVote.setVoter(userRepository.findById(userId).orElseThrow(() -> new DataNotFoundException("User not found")));
+            newAnswerVote.setVoter(user);
             newAnswerVote.setIsUpvote(isUpvote);
             //increase viral points
             newAnswerVote.getAnswer().setViralPoints(newAnswerVote.getAnswer().getViralPoints()+ Utils.VOTE_POINTS);
@@ -85,7 +92,12 @@ public class AnswerVoteServiceImpl implements VoteService
     }
 
     @Override
-    public void removeVote(Long answerId, Long userId) {
+    public void removeVote(Long answerId) {
+        Long userId = authService.getCurrentUser().getId();
+        AnswerVote answerVote = answerVoteRepository.findByAnswerIdAndVoterId(answerId, userId).orElseThrow(() -> new DataNotFoundException("Vote not found"));
+        if(!answerVote.getVoter().getId().equals(userId)) {
+           throw new AccessDeniedException("You are not allowed to remove this vote");
+        }
         answerVoteRepository.deleteByAnswerIdAndVoterId(answerId, userId);
     }
 

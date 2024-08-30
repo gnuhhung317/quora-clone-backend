@@ -1,6 +1,7 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
+import net.duchung.quora.dto.QuestionDto;
 import net.duchung.quora.dto.UserDto;
 import net.duchung.quora.dto.request.RegisterRequest;
 import net.duchung.quora.dto.response.FollowResponse;
@@ -13,11 +14,10 @@ import net.duchung.quora.mapper.UserMapper;
 import net.duchung.quora.repository.FollowRepository;
 import net.duchung.quora.repository.TopicRepository;
 import net.duchung.quora.repository.UserRepository;
-import net.duchung.quora.service.FileService;
+import net.duchung.quora.service.AuthService;
 import net.duchung.quora.service.UserService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -39,6 +40,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private FollowRepository followRepository;
+    @Autowired
+    private AuthService authService;
     @Override
     @Transactional
     public UserDto createUser(RegisterRequest registerRequest) {
@@ -59,13 +62,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto updateUser(Long id,UserDto userDto) {
-        User user = userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("User not found"));
+    public UserDto updateUser(UserDto userDto) {
+        User user = authService.getCurrentUser();
+
         user.setFullName(userDto.getFullName());
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
         user.setAvatarUrl(userDto.getAvatarUrl());
         user.setTopics(new HashSet<>(topicRepository.findAllById(userDto.getTopicIds())));
+
         User savedUser=userRepository.save(user);
         return toDto(savedUser);
     }
@@ -84,22 +89,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public FollowResponse follow(Long followerId, Long followingId) {
+    public FollowResponse follow(Long followingId) {
+        User user = authService.getCurrentUser();
+        Long followerId = user.getId();
         boolean isSuccess = false;
 
         if (followerId.equals(followingId)) {
             return new FollowResponse(isSuccess,"unfollow", "You cannot follow yourself.");
         }
 
-        User followerOpt = userRepository.findById(followerId).orElseThrow(() -> new DataNotFoundException("User with id " + followerId + " not found"));
         User followingOpt = userRepository.findById(followingId).orElseThrow(() -> new DataNotFoundException("User with id " + followingId + " not found"));
 
-        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(followerOpt.getId(), followingOpt.getId()); // <11,4>
+        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(user.getId(), followingOpt.getId()); // <11,4>
         if (followOpt.isPresent()) {
             return new FollowResponse(isSuccess,"follow", "You are already following this user.");
         }else{
             Follow follow = new Follow();
-            follow.setFollower(followerOpt);
+            follow.setFollower(user);
             follow.setFollowing(followingOpt);
             followRepository.save(follow);
             isSuccess = true;
@@ -113,16 +119,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public FollowResponse unfollow(Long followerId, Long followingId) {
+    public FollowResponse unfollow( Long followingId) {
         boolean isSuccess = false;
-
+        User user = authService.getCurrentUser();
+        Long followerId = user.getId();
         if (followerId.equals(followingId)) {
             return new FollowResponse(isSuccess,"unfollow", "You cannot unfollow yourself.");
         }
 
-        User followerOpt = userRepository.findById(followerId).orElseThrow(() -> new DataNotFoundException("User with id " + followerId + " not found"));
         User followingOpt = userRepository.findById(followingId).orElseThrow(() -> new DataNotFoundException("User with id " + followingId + " not found"));
-        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(followerOpt.getId(), followingOpt.getId());
+        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(followerId, followingOpt.getId());
         if (followOpt.isEmpty()) {
             return new FollowResponse(isSuccess,"unfollow", "You are not following this user.");
         }else{
@@ -140,24 +146,51 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void followTopics(Long userId, List<Long> topicIds) {
+    public void followTopics(List<Long> topicIds) {
+        User user = authService.getCurrentUser();
         for(Long topicId:topicIds) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new DataNotFoundException("User not found"));
             Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new DataNotFoundException("Topic not found"));
             user.getTopics().add(topic);
-            userRepository.save(user);
         }
+        userRepository.save(user);
+
     }
 
     @Override
-    public void unfollowTopics(Long userId, List<Long> topicIds) {
+    public void unfollowTopics(List<Long> topicIds) {
+        User user = authService.getCurrentUser();
         for(Long topicId:topicIds) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new DataNotFoundException("User not found"));
             Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new DataNotFoundException("Topic not found"));
             user.getTopics().remove(topic);
-            userRepository.save(user);
+
         }
+        userRepository.save(user);
     }
+
+    @Override
+    public List<UserDto> getFollowers(Long userId) {
+
+        return followRepository.getUserByFollowerId(userId).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDto> getFollowings(Long userId) {
+        return followRepository.getUserByFollowingId(userId).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDto> getFollowersByCurrentUser() {
+        User user = authService.getCurrentUser();
+        return followRepository.getUserByFollowerId(user.getId()).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDto> getFollowingsByCurrentUser() {
+        User user = authService.getCurrentUser();
+        return followRepository.getUserByFollowingId(user.getId()).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+
 
     public UserDto registerRequestToDto(RegisterRequest registerRequest) {
         UserDto userDto = new UserDto();
@@ -171,7 +204,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public String uploadAvatar(MultipartFile avatar) {
 
-        return cloudinaryService.uploadImage(avatar).get("secure_url").toString();
+        String url =cloudinaryService.uploadImage(avatar).get("secure_url").toString();
+
+        User user = authService.getCurrentUser();
+        user.setAvatarUrl(url);
+        userRepository.save(user);
+        return url;
 
     }
 

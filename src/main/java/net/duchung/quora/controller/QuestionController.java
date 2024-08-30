@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("${api.base.url}/questions")
 public class QuestionController {
@@ -32,6 +34,14 @@ public class QuestionController {
     public ResponseEntity<QuestionDto> getQuestionById(@PathVariable Long id) {
         QuestionDto question = questionService.getQuestionById(id);
         return ResponseEntity.ok(question);
+    }
+    @GetMapping("")
+    public ResponseEntity<List<QuestionDto>> getQuestionsByUserId(@RequestParam Long userId) {
+        if(userId == null) {
+            return ResponseEntity.ok(questionService.getQuestionsByCurrentUser());
+        }
+        List<QuestionDto> questions = questionService.getQuestionsByUserId(userId);
+        return ResponseEntity.ok(questions);
     }
 
 

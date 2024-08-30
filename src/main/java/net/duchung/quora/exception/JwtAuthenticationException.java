@@ -1,4 +1,4 @@
-package net.duchung.quora.entity;
+package net.duchung.quora.exception;
 
 public class JwtAuthenticationException extends RuntimeException{
 

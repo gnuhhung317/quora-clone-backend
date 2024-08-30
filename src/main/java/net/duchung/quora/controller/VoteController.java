@@ -22,13 +22,11 @@ public class VoteController {
 
     @PostMapping("")
     public CastVoteResponse castVote(@RequestParam("type") String type,@RequestBody CastVoteRequest voteRequest) {
-        Long contentId = voteRequest.getContentId();
-        Long userId = voteRequest.getUserId();
         Boolean isUpvote = voteRequest.getIsUpvote();
         if(type.equals("answer")) {
-            return answerVoteService.castVote(contentId, userId, isUpvote);
+            return answerVoteService.castVote(voteRequest.getContentId(), isUpvote);
         }else if (type.equals("comment")) {
-            return commentVoteService.castVote(contentId, userId, isUpvote);
+            return commentVoteService.castVote(voteRequest.getContentId(), isUpvote);
         }
         return new CastVoteResponse(false, null ,"Vote type not found");
     }

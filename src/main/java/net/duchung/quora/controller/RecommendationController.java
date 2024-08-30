@@ -2,7 +2,6 @@ package net.duchung.quora.controller;
 
 import net.duchung.quora.dto.AnswerDto;
 import net.duchung.quora.dto.ViewDto;
-import net.duchung.quora.entity.Answer;
 import net.duchung.quora.service.RecommendationService;
 import net.duchung.quora.service.ViewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("${api.base.url}/recommendation")
-public class CommendationController {
+public class RecommendationController {
 
     @Autowired
     private RecommendationService recommendationService;

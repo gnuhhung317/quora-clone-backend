@@ -11,6 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CastVoteRequest {
     Long contentId;
-    Long userId;
+
     Boolean isUpvote;
 }

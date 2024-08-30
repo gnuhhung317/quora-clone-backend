@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +26,11 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     @Query("SELECT c.answer FROM Comment c WHERE c.id = :commentId")
     Optional<Answer> findByCommentId(Long commentId);
 
-    @Query(value = "SELECT a.* " +
+    @Query("SELECT a FROM Answer a WHERE a.question.id = :questionId")
+    List<Answer> findByQuestionId(@Param("questionId") Long questionId);
+
+    @Query(value = "SELECT a.* , " +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
             "FROM answers a " +
             "JOIN questions q ON a.question_id = q.id " +
             "JOIN question_topic qt ON q.id = qt.question_id " +
@@ -35,10 +38,11 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "JOIN user_topic ut ON ut.topic_id = t.id " +
             "left JOIN views v ON v.answer_id =a.id AND ut.user_id=v.user_id " +
             "WHERE ut.user_id = :userId " +
-            "ORDER BY a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) DESC " +
-            "LIMIT "+ Utils.MAX_RECOMMENDATION,nativeQuery = true)
-    List<Answer> recommendationByViralAnswer(@Param("userId") Long userId);
-    @Query(value = "SELECT a.* " +
+            "ORDER BY order_value DESC " +
+            "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
+    List<Object[]> recommendationByViralAnswer(@Param("userId") Long userId);
+    @Query(value = "SELECT a.*," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
             "FROM answers a " +
             "JOIN questions q ON a.question_id = q.id " +
             "JOIN question_topic qt ON q.id = qt.question_id " +
@@ -49,11 +53,12 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "        select following_id from follows " +
             "        where follower_id = :userId " +
             "  ) " +
-            "ORDER BY a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW()))  DESC " +
-            "LIMIT "+ Utils.MAX_RECOMMENDATION,nativeQuery = true)
-    List<Answer> recommendationByFollowingUserFeed(@Param("userId") Long userId);
+            "ORDER BY order_value DESC " +
+            "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
+    List<Object[]> recommendationByFollowingUserFeed(@Param("userId") Long userId);
 
-    @Query(value = "SELECT a.* " +
+    @Query(value = "SELECT a.* ," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value" +
             "FROM answers a " +
             "JOIN users u on  u.id = a.user_id " +
             "LEFT JOIN views v on u.id=v.user_id and v.answer_id=a.id " +
@@ -61,11 +66,12 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "        select id from users " +
             "        where users.id = :userId " +
             ") " +
-            "ORDER BY a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW()))  DESC; " +
-            "LIMIT "+ Utils.MAX_RECOMMENDATION,nativeQuery = true)
-    List<Answer> recommendationByFollowingUserAnswers(@Param("userId") Long userId);
+            "ORDER BY order_value  DESC; " +
+            "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
+    List<Object[]> recommendationByFollowingUserAnswers(@Param("userId") Long userId);
 
-    @Query(value = "SELECT a.* " +
+    @Query(value = "SELECT a.* ," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
             "FROM answers a " +
             "JOIN users u on  u.id = a.user_id " +
             "JOIN questions q on q.id = a.question_id " +
@@ -74,9 +80,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "        select id from users " +
             "        where users.id = :userId " +
             ") " +
-            "ORDER BY a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) DESC " +
-            "LIMIT "+ Utils.MAX_RECOMMENDATION,nativeQuery = true)
-    List<Answer> recommendationByFollowingUserQuestions(@Param("userId") Long userId);
+            "ORDER BY order_value DESC " +
+            "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
+    List<Object[]> recommendationByFollowingUserQuestions(@Param("userId") Long userId);
 
     @Query(value = "select a.* " +
             "from answers a " +
@@ -86,14 +92,15 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "JOIN users on user_topic.user_id=users.id " +
             "WHERE users.id = :userId " +
             "ORDER BY TIMESTAMPDIFF(SECOND, a.created_at, NOW()) " +
-            "LIMIT "+ Utils.MAX_RECOMMENDATION,nativeQuery = true)
+            "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
     List<Answer> recommendationByRecentAnswerInTopic(@Param("userId") Long userId);
-    @Query(value = "SELECT a.* " +
+    @Query(value = "SELECT a.*," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
             "FROM answers a " +
             "JOIN views v ON v.answer_id = a.id AND v.user_id = :userId " +
-            "ORDER BY a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) DESC " +
-            "LIMIT "+ Utils.MAX_RECOMMENDATION,nativeQuery = true)
-    List<Answer> recommendationByViralAnswerAllTopic(@Param("userId") Long userId);
+            "ORDER BY order_value DESC " +
+            "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
+    List<Object[]> recommendationByViralAnswerAllTopic(@Param("userId") Long userId);
 }
 
 

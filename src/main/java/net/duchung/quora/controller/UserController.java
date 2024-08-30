@@ -34,9 +34,9 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
-        UserDto user = userService.updateUser(id, userDto);
+    @PutMapping("/")
+    public ResponseEntity<UserDto> updateUser( @RequestBody UserDto userDto) {
+        UserDto user = userService.updateUser( userDto);
         return ResponseEntity.ok(user);
     }
     @DeleteMapping("/{id}")
@@ -45,27 +45,27 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/follow/{followerId}/{followingId}")
-    public ResponseEntity<FollowResponse> follow(@PathVariable Long followerId, @PathVariable Long followingId) {
-        FollowResponse followResponse = userService.follow(followerId, followingId);
+    @PostMapping("/follow/{followingId}")
+    public ResponseEntity<FollowResponse> follow(@PathVariable Long followingId) {
+        FollowResponse followResponse = userService.follow(followingId);
 
 
         return ResponseEntity.ok(followResponse);
     }
-    @PostMapping("/unfollow/{followerId}/{followingId}")
-    public ResponseEntity<FollowResponse> unfollow(@PathVariable Long followerId, @PathVariable Long followingId) {
-        FollowResponse followResponse = userService.unfollow(followerId, followingId);
+    @PostMapping("/unfollow/{followingId}")
+    public ResponseEntity<FollowResponse> unfollow(@PathVariable Long followingId) {
+        FollowResponse followResponse = userService.unfollow( followingId);
 
         return ResponseEntity.ok(followResponse);
     }
-    @PostMapping("/{id}/followTopics")
+    @PostMapping("/followTopics")
     public ResponseEntity<String> chooseTopic(@PathVariable Long id,@RequestParam List<Long> topicIds) {
-        userService.followTopics(id,topicIds);
+        userService.followTopics(topicIds);
         return ResponseEntity.ok("Follow successfully");
     }
-    @PostMapping("/{id}/unfollowTopics")
-    public ResponseEntity<String> unfollowTopics(@PathVariable Long id,@RequestParam List<Long> topicIds) {
-        userService.unfollowTopics(id,topicIds);
+    @PostMapping("/unfollowTopics")
+    public ResponseEntity<String> unfollowTopics(@RequestParam List<Long> topicIds) {
+        userService.unfollowTopics(topicIds);
         return ResponseEntity.ok("Unfollow successfully");
     }
 
@@ -73,6 +73,23 @@ public class UserController {
     public ResponseEntity<String> uploadAvatar(@RequestBody MultipartFile avatar) {
         String secureUrl =userService.uploadAvatar(avatar);
         return ResponseEntity.ok(secureUrl);
+    }
+
+    @GetMapping("/followers")
+    public ResponseEntity<List<UserDto>> getFollowers(@RequestParam Long userId) {
+        if(userId == null) {
+            return ResponseEntity.ok(userService.getFollowersByCurrentUser());
+        }
+        List<UserDto> userDtos = userService.getFollowers(userId);
+        return ResponseEntity.ok(userDtos);
+    }
+    @GetMapping("/followings")
+    public ResponseEntity<List<UserDto>> getFollowings(@RequestParam Long userId) {
+        if(userId == null) {
+            return ResponseEntity.ok(userService.getFollowingsByCurrentUser());
+        }
+        List<UserDto> userDtos = userService.getFollowings(userId);
+        return ResponseEntity.ok(userDtos);
     }
 
 

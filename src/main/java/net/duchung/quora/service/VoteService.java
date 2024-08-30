@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface VoteService {
-    CastVoteResponse castVote(Long contentId, Long userId, Boolean isUpvote);
+    CastVoteResponse castVote(Long contentId, Boolean isUpvote);
 
-    void removeVote(Long contentId, Long userId);
+    void removeVote(Long contentId);
 
     Long countUpvotes(Long contentId);
     Long countDownvotes(Long contentId);

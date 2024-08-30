@@ -1,2 +1,8 @@
-package net.duchung.quora.exception;public class AccessDenniedException {
+package net.duchung.quora.exception;
+
+public class AccessDeniedException extends RuntimeException {
+
+    public AccessDeniedException(String message) {
+        super(message);
+    }
 }

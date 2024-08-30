@@ -1,8 +1,10 @@
 package net.duchung.quora.service;
 
+import net.duchung.quora.dto.QuestionDto;
 import net.duchung.quora.dto.UserDto;
 import net.duchung.quora.dto.request.RegisterRequest;
 import net.duchung.quora.dto.response.FollowResponse;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,22 +16,31 @@ public interface UserService {
 
     UserDto createUser(RegisterRequest userDto);
 
-    UserDto updateUser(Long id,UserDto userDto);
+    UserDto updateUser(UserDto userDto);
 
     UserDto getUserById(Long id);
 
     void deleteUserById(Long id);
 
-    FollowResponse follow(Long followerId, Long followingId);
-    FollowResponse unfollow(Long followerId, Long followingId);
+    FollowResponse follow( Long followingId);
+    FollowResponse unfollow( Long followingId);
 
 
-    void followTopics(Long userId, List<Long> topicIds);
-    void unfollowTopics(Long userId, List<Long> topicIds);
+
 
     String uploadAvatar(MultipartFile avatar);
 
+    void followTopics(List<Long> topicIds);
+
+    void unfollowTopics(List<Long> topicIds);
+
     List<UserDto> getFollowers(Long userId);
 
-    List<UserDto> getFollowing(Long userId);
+    List<UserDto> getFollowersByCurrentUser();
+    List<UserDto> getFollowings(Long userId);
+    List<UserDto> getFollowingsByCurrentUser();
+
+
+
+
 }
