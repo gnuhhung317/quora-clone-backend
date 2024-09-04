@@ -1,5 +1,5 @@
 package net.duchung.quora.repository;
-import net.duchung.quora.entity.Comment;
+import net.duchung.quora.data.entity.Comment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,6 +1,8 @@
 package net.duchung.quora.service;
 
-import net.duchung.quora.dto.QuestionDto;
+import net.duchung.quora.data.request.QuestionRequest;
+import net.duchung.quora.data.response.FollowQuestionResponse;
+import net.duchung.quora.data.response.QuestionResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,13 +10,17 @@ import java.util.List;
 @Service
 public interface QuestionService {
 
-    QuestionDto createQuestion(QuestionDto questionDto);
-    QuestionDto updateQuestion(Long id, QuestionDto questionDto);
+    QuestionResponse createQuestion(QuestionRequest questionDto);
+    QuestionResponse updateQuestion(Long id, QuestionRequest questionDto);
     void deleteQuestionById(Long id);
-    QuestionDto getQuestionById(Long id);
+    QuestionResponse getQuestionById(Long id);
 
-    List<QuestionDto> getQuestionsByUserId(Long id);
+    List<QuestionResponse> getQuestionsByUserId(Long id);
 
-    List<QuestionDto> getQuestionsByCurrentUser();
+    List<QuestionResponse> getQuestionsByCurrentUser();
+
+    FollowQuestionResponse followQuestion(Long id);
+
+    FollowQuestionResponse unfollowQuestion(Long id);
 
 }

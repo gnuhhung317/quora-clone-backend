@@ -1,6 +1,8 @@
 package net.duchung.quora.controller;
 
-import net.duchung.quora.dto.QuestionDto;
+import net.duchung.quora.data.request.QuestionRequest;
+import net.duchung.quora.data.response.FollowQuestionResponse;
+import net.duchung.quora.data.response.QuestionResponse;
 import net.duchung.quora.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +16,14 @@ public class QuestionController {
     @Autowired
     private QuestionService questionService;
     @PostMapping("")
-    public ResponseEntity<QuestionDto> createQuestion(@RequestBody QuestionDto questionDto) {
-        questionDto = questionService.createQuestion(questionDto);
-        return ResponseEntity.ok(questionDto);
+    public ResponseEntity<QuestionResponse> createQuestion(@RequestBody QuestionRequest questionDto) {
+        QuestionResponse question = questionService.createQuestion(questionDto);
+        return ResponseEntity.ok(question);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<QuestionDto> updateQuestion(@PathVariable Long id, @RequestBody QuestionDto questionDto) {
-        QuestionDto question = questionService.updateQuestion(id, questionDto);
+    public ResponseEntity<QuestionResponse> updateQuestion(@PathVariable Long id, @RequestBody QuestionRequest questionDto) {
+        QuestionResponse question = questionService.updateQuestion(id, questionDto);
         return ResponseEntity.ok(question);
     }
     @DeleteMapping("/{id}")
@@ -31,17 +33,25 @@ public class QuestionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<QuestionDto> getQuestionById(@PathVariable Long id) {
-        QuestionDto question = questionService.getQuestionById(id);
+    public ResponseEntity<QuestionResponse> getQuestionById(@PathVariable Long id) {
+        QuestionResponse question = questionService.getQuestionById(id);
         return ResponseEntity.ok(question);
     }
     @GetMapping("")
-    public ResponseEntity<List<QuestionDto>> getQuestionsByUserId(@RequestParam Long userId) {
+    public ResponseEntity<List<QuestionResponse>> getQuestionsByUserId(@RequestParam(required = false) Long userId) {
         if(userId == null) {
             return ResponseEntity.ok(questionService.getQuestionsByCurrentUser());
         }
-        List<QuestionDto> questions = questionService.getQuestionsByUserId(userId);
+        List<QuestionResponse> questions = questionService.getQuestionsByUserId(userId);
         return ResponseEntity.ok(questions);
+    }
+    @PostMapping("/follow")
+    public ResponseEntity<FollowQuestionResponse> follow(@RequestParam Long questionId) {
+        return ResponseEntity.ok(questionService.followQuestion(questionId));
+    }
+    @PostMapping("/unfollow")
+    public ResponseEntity<FollowQuestionResponse> unfollow(@RequestParam Long questionId) {
+        return ResponseEntity.ok(questionService.unfollowQuestion(questionId));
     }
 
 

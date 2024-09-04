@@ -1,6 +1,6 @@
 package net.duchung.quora.controller;
 
-import net.duchung.quora.dto.ViewDto;
+import net.duchung.quora.data.dto.ViewDto;
 import net.duchung.quora.service.ViewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

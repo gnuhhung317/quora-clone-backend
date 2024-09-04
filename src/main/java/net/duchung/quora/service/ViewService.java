@@ -1,7 +1,6 @@
 package net.duchung.quora.service;
 
-import net.duchung.quora.dto.ViewDto;
-import net.duchung.quora.entity.View;
+import net.duchung.quora.data.dto.ViewDto;
 import org.springframework.stereotype.Service;
 
 @Service

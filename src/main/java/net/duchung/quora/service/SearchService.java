@@ -1,9 +1,7 @@
 package net.duchung.quora.service;
 
-import net.duchung.quora.dto.response.ListAnswerResponse;
+import net.duchung.quora.data.response.ListAnswerResponse;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public interface SearchService {

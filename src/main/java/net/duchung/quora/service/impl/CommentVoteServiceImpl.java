@@ -1,13 +1,13 @@
 package net.duchung.quora.service.impl;
 
-import net.duchung.quora.entity.User;
-import net.duchung.quora.exception.AccessDeniedException;
+import net.duchung.quora.data.entity.User;
+import net.duchung.quora.common.exception.AccessDeniedException;
 import net.duchung.quora.service.AuthService;
 import net.duchung.quora.utils.Utils;
-import net.duchung.quora.dto.response.CastVoteResponse;
-import net.duchung.quora.dto.response.VoteStatusResponse;
-import net.duchung.quora.entity.vote.CommentVote;
-import net.duchung.quora.exception.DataNotFoundException;
+import net.duchung.quora.data.response.CastVoteResponse;
+import net.duchung.quora.data.response.VoteStatusResponse;
+import net.duchung.quora.data.entity.vote.CommentVote;
+import net.duchung.quora.common.exception.DataNotFoundException;
 import net.duchung.quora.repository.CommentRepository;
 import net.duchung.quora.repository.CommentVoteRepository;
 import net.duchung.quora.repository.UserRepository;

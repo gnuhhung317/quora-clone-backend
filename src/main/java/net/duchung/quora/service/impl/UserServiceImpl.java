@@ -1,17 +1,17 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
-import net.duchung.quora.dto.QuestionDto;
-import net.duchung.quora.dto.UserDto;
-import net.duchung.quora.dto.request.RegisterRequest;
-import net.duchung.quora.dto.response.FollowResponse;
-import net.duchung.quora.entity.Follow;
-import net.duchung.quora.entity.Topic;
-import net.duchung.quora.entity.User;
-import net.duchung.quora.exception.DataNotFoundException;
-import net.duchung.quora.mapper.BaseMapper;
-import net.duchung.quora.mapper.UserMapper;
-import net.duchung.quora.repository.FollowRepository;
+import net.duchung.quora.data.request.RegisterRequest;
+import net.duchung.quora.data.request.UserRequest;
+import net.duchung.quora.data.response.FollowUserResponse;
+import net.duchung.quora.data.entity.FollowUser;
+import net.duchung.quora.data.entity.Topic;
+import net.duchung.quora.data.entity.User;
+import net.duchung.quora.common.exception.DataNotFoundException;
+import net.duchung.quora.data.mapper.UserMapper;
+import net.duchung.quora.data.response.UserProfile;
+import net.duchung.quora.data.response.UserResponse;
+import net.duchung.quora.repository.UserFollowRepository;
 import net.duchung.quora.repository.TopicRepository;
 import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.service.AuthService;
@@ -22,7 +22,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,47 +38,52 @@ public class UserServiceImpl implements UserService {
     private TopicRepository topicRepository;
 
     @Autowired
-    private FollowRepository followRepository;
+    private UserFollowRepository followRepository;
     @Autowired
     private AuthService authService;
     @Override
     @Transactional
-    public UserDto createUser(RegisterRequest registerRequest) {
+    public UserProfile createUser(RegisterRequest registerRequest) {
 
         if(!registerRequest.getPassword().equals(registerRequest.getRetypePassword()) ){
             throw new RuntimeException("Passwords do not match");
         }
-        UserDto userDto = registerRequestToDto(registerRequest);
 
-        if(userRepository.existsByEmail(userDto.getEmail())) {
-            throw new DataIntegrityViolationException("Email "+userDto.getEmail()+" already exists");
+        if(userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new DataIntegrityViolationException("Email "+registerRequest.getEmail()+" already exists");
         }
-        User user = toEntity(userDto);
+        User user=new User();
+
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(registerRequest.getPassword());
+        user.setFullName(registerRequest.getFullName());
+
+
         User savedUser = userRepository.save(user);
 
-        return toDto(savedUser);
+        return new UserProfile(savedUser);
     }
 
     @Override
     @Transactional
-    public UserDto updateUser(UserDto userDto) {
+    public UserProfile updateUser(UserRequest userDto) {
         User user = authService.getCurrentUser();
-
         user.setFullName(userDto.getFullName());
         user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
         user.setAvatarUrl(userDto.getAvatarUrl());
-        user.setTopics(new HashSet<>(topicRepository.findAllById(userDto.getTopicIds())));
-
         User savedUser=userRepository.save(user);
-        return toDto(savedUser);
+        return new UserProfile(savedUser);
     }
 
     @Override
-    @Transactional
-    public UserDto getUserById(Long id) {
+    public UserProfile getUserById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("User not found"));
-        return toDto(user);
+        return new UserProfile(user);
+    }
+
+    @Override
+    public UserProfile getProfile() {
+        return new UserProfile(authService.getCurrentUser());
     }
 
     @Override
@@ -89,55 +93,55 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public FollowResponse follow(Long followingId) {
+    public FollowUserResponse follow(Long followingId) {
         User user = authService.getCurrentUser();
         Long followerId = user.getId();
         boolean isSuccess = false;
 
         if (followerId.equals(followingId)) {
-            return new FollowResponse(isSuccess,"unfollow", "You cannot follow yourself.");
+            return new FollowUserResponse(isSuccess,"unfollow", "You cannot follow yourself.");
         }
 
-        User followingOpt = userRepository.findById(followingId).orElseThrow(() -> new DataNotFoundException("User with id " + followingId + " not found"));
+        User following = userRepository.findById(followingId).orElseThrow(() -> new DataNotFoundException("User with id " + followingId + " not found"));
 
-        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(user.getId(), followingOpt.getId()); // <11,4>
+        Optional<FollowUser> followOpt = followRepository.findByFollowerIdAndFollowingId(user.getId(), following.getId()); // <11,4>
         if (followOpt.isPresent()) {
-            return new FollowResponse(isSuccess,"follow", "You are already following this user.");
+            return new FollowUserResponse(isSuccess,"follow", "You are already following this user.");
         }else{
-            Follow follow = new Follow();
+            FollowUser follow = new FollowUser();
             follow.setFollower(user);
-            follow.setFollowing(followingOpt);
+            follow.setFollowing(following);
             followRepository.save(follow);
             isSuccess = true;
         }
 
 
-        FollowResponse followResponse = new FollowResponse();
+        FollowUserResponse followResponse = new FollowUserResponse();
         followResponse.setType("follow");
         followResponse.setSuccess(isSuccess);
         return followResponse;
     }
 
     @Override
-    public FollowResponse unfollow( Long followingId) {
+    public FollowUserResponse unfollow(Long followingId) {
         boolean isSuccess = false;
         User user = authService.getCurrentUser();
         Long followerId = user.getId();
         if (followerId.equals(followingId)) {
-            return new FollowResponse(isSuccess,"unfollow", "You cannot unfollow yourself.");
+            return new FollowUserResponse(isSuccess,"unfollow", "You cannot unfollow yourself.");
         }
 
         User followingOpt = userRepository.findById(followingId).orElseThrow(() -> new DataNotFoundException("User with id " + followingId + " not found"));
-        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(followerId, followingOpt.getId());
+        Optional<FollowUser> followOpt = followRepository.findByFollowerIdAndFollowingId(followerId, followingOpt.getId());
         if (followOpt.isEmpty()) {
-            return new FollowResponse(isSuccess,"unfollow", "You are not following this user.");
+            return new FollowUserResponse(isSuccess,"unfollow", "You are not following this user.");
         }else{
             followRepository.deleteById(followOpt.get().getId());
             isSuccess = true;
         }
 
 
-        FollowResponse followResponse = new FollowResponse();
+        FollowUserResponse followResponse = new FollowUserResponse();
         followResponse.setType("unfollow");
         followResponse.setSuccess(isSuccess);
         return followResponse;
@@ -149,7 +153,7 @@ public class UserServiceImpl implements UserService {
     public void followTopics(List<Long> topicIds) {
         User user = authService.getCurrentUser();
         for(Long topicId:topicIds) {
-            Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new DataNotFoundException("Topic not found"));
+            Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new DataNotFoundException("Topic with id "+topicId+" not found"));
             user.getTopics().add(topic);
         }
         userRepository.save(user);
@@ -168,37 +172,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getFollowers(Long userId) {
+    public List<UserResponse> getFollowers(Long userId) {
 
-        return followRepository.getUserByFollowerId(userId).stream().map(this::toDto).collect(Collectors.toList());
+        return followRepository.getUserByFollowerId(userId).stream().map(UserResponse::new).collect(Collectors.toList());
     }
 
     @Override
-    public List<UserDto> getFollowings(Long userId) {
-        return followRepository.getUserByFollowingId(userId).stream().map(this::toDto).collect(Collectors.toList());
+    public List<UserResponse> getFollowings(Long userId) {
+        return followRepository.getUserByFollowingId(userId).stream().map(UserResponse::new).collect(Collectors.toList());
     }
 
     @Override
-    public List<UserDto> getFollowersByCurrentUser() {
+    public List<UserResponse> getFollowersByCurrentUser() {
         User user = authService.getCurrentUser();
-        return followRepository.getUserByFollowerId(user.getId()).stream().map(this::toDto).collect(Collectors.toList());
+        return followRepository.getUserByFollowerId(user.getId()).stream().map(UserResponse::new).collect(Collectors.toList());
     }
 
     @Override
-    public List<UserDto> getFollowingsByCurrentUser() {
+    public List<UserResponse> getFollowingsByCurrentUser() {
         User user = authService.getCurrentUser();
-        return followRepository.getUserByFollowingId(user.getId()).stream().map(this::toDto).collect(Collectors.toList());
+        return followRepository.getUserByFollowingId(user.getId()).stream().map(UserResponse::new).collect(Collectors.toList());
     }
 
 
 
-    public UserDto registerRequestToDto(RegisterRequest registerRequest) {
-        UserDto userDto = new UserDto();
-        userDto.setFullName(registerRequest.getFullName());
-        userDto.setEmail(registerRequest.getEmail());
-        userDto.setPassword(registerRequest.getPassword());
-        return userDto;
-    }
 
     @Override
     @Transactional
@@ -213,16 +210,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    private UserDto toDto(User user) {
-        UserDto userDto = USER_MAPPER.toUserDto(user);
-        BaseMapper.getBaseDtoAttribute(userDto, user);
-        return userDto;
-    }
 
-    private User toEntity(UserDto userDto) {
-        User user = USER_MAPPER.toUser(userDto);
-        BaseMapper.getBaseEntityAttribute(user, userDto);
-        return user;
-    }
+
 
 }

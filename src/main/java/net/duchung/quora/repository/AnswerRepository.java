@@ -1,5 +1,5 @@
 package net.duchung.quora.repository;
-import net.duchung.quora.entity.Answer;
+import net.duchung.quora.data.entity.Answer;
 
 import net.duchung.quora.utils.Utils;
 import org.springframework.data.domain.Page;
@@ -26,11 +26,14 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     @Query("SELECT c.answer FROM Comment c WHERE c.id = :commentId")
     Optional<Answer> findByCommentId(Long commentId);
 
+    @Query("SELECT a FROM Answer a WHERE a.id = :answerId AND a.user.id = :userId")
+    Boolean isUpVotedByUser(@Param("answerId") Long answerId, @Param("userId") Long userId);
     @Query("SELECT a FROM Answer a WHERE a.question.id = :questionId")
     List<Answer> findByQuestionId(@Param("questionId") Long questionId);
 
-    @Query(value = "SELECT a.* , " +
-            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
+    @Query(value = "SELECT a.id , " +
+            "IF(TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) < 5, 0," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())*1.0)) as order_value " +
             "FROM answers a " +
             "JOIN questions q ON a.question_id = q.id " +
             "JOIN question_topic qt ON q.id = qt.question_id " +
@@ -41,9 +44,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "ORDER BY order_value DESC " +
             "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
     List<Object[]> recommendationByViralAnswer(@Param("userId") Long userId);
-    @Query(value = "SELECT a.*," +
-            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
-            "FROM answers a " +
+    @Query(value = "SELECT a.id," +
+            "IF(TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) < 5, 0," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())*1.0)) as order_value " +            "FROM answers a " +
             "JOIN questions q ON a.question_id = q.id " +
             "JOIN question_topic qt ON q.id = qt.question_id " +
             "JOIN topics t ON qt.topic_id = t.id " +
@@ -57,22 +60,22 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
     List<Object[]> recommendationByFollowingUserFeed(@Param("userId") Long userId);
 
-    @Query(value = "SELECT a.* ," +
-            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value" +
-            "FROM answers a " +
+    @Query(value = "SELECT a.id ," +
+            "IF(TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) < 5, 0," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())*1.0)) as order_value " +            "FROM answers a " +
             "JOIN users u on  u.id = a.user_id " +
             "LEFT JOIN views v on u.id=v.user_id and v.answer_id=a.id " +
             "WHERE a.user_id in ( " +
             "        select id from users " +
             "        where users.id = :userId " +
             ") " +
-            "ORDER BY order_value  DESC; " +
+            "ORDER BY order_value  DESC " +
             "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
     List<Object[]> recommendationByFollowingUserAnswers(@Param("userId") Long userId);
 
-    @Query(value = "SELECT a.* ," +
-            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
-            "FROM answers a " +
+    @Query(value = "SELECT a.id ," +
+            "IF(TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) < 5, 0," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())*1.0)) as order_value " +            "FROM answers a " +
             "JOIN users u on  u.id = a.user_id " +
             "JOIN questions q on q.id = a.question_id " +
             "LEFT JOIN views v ON v.user_id = u.id and v.answer_id = a.id " +
@@ -94,9 +97,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
             "ORDER BY TIMESTAMPDIFF(SECOND, a.created_at, NOW()) " +
             "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)
     List<Answer> recommendationByRecentAnswerInTopic(@Param("userId") Long userId);
-    @Query(value = "SELECT a.*," +
-            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())) as order_value " +
-            "FROM answers a " +
+    @Query(value = "SELECT a.id, " +
+            "IF(TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) < 5, 0," +
+            "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())*1.0)) as order_value " +            "FROM answers a " +
             "JOIN views v ON v.answer_id = a.id AND v.user_id = :userId " +
             "ORDER BY order_value DESC " +
             "LIMIT "+ Utils.MAX_LIMIT,nativeQuery = true)

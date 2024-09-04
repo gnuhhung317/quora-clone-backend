@@ -1,7 +1,7 @@
 package net.duchung.quora.controller;
 
-import net.duchung.quora.dto.AnswerDto;
-import net.duchung.quora.dto.ViewDto;
+import net.duchung.quora.data.dto.ViewDto;
+import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.service.RecommendationService;
 import net.duchung.quora.service.ViewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +21,10 @@ public class RecommendationController {
     @Autowired
     private ViewService viewService;
     @GetMapping("")
-    public ResponseEntity<List<AnswerDto>> getRecommendation() {
-        List<AnswerDto> answers = recommendationService.getRecommendationAnswers(102L);
-        for (AnswerDto answer : answers){
-            viewService.logView(new ViewDto(answer.getId(),102L,1d));
+    public ResponseEntity<List<AnswerResponse>> getRecommendation() {
+        List<AnswerResponse> answers = recommendationService.getRecommendationAnswers();
+        for (AnswerResponse answer : answers){
+            viewService.logView(new ViewDto(answer.getId(),1d));
         }
 
         return ResponseEntity.ok(answers);

@@ -1,10 +1,11 @@
 package net.duchung.quora.service.impl;
 
+import net.duchung.quora.data.response.AnswerResponse;
+import net.duchung.quora.service.AuthService;
 import net.duchung.quora.utils.Utils;
-import net.duchung.quora.dto.AnswerDto;
-import net.duchung.quora.dto.response.ListAnswerResponse;
-import net.duchung.quora.entity.Answer;
-import net.duchung.quora.mapper.AnswerMapper;
+import net.duchung.quora.data.response.ListAnswerResponse;
+import net.duchung.quora.data.entity.Answer;
+import net.duchung.quora.data.mapper.AnswerMapper;
 import net.duchung.quora.repository.AnswerRepository;
 import net.duchung.quora.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,19 @@ public class SearchServiceImpl implements SearchService {
 
     @Autowired
     private AnswerRepository answerRepository;
+    @Autowired
+    private AuthService authService;
+
     @Override
     public ListAnswerResponse search(String query, String topic, int page) {
-        PageRequest pageRequest = PageRequest.of(page, Utils.SEARCH_RESULTS_PER_PAGE, Sort.by("viral_points").descending());
-        Page<Answer> answers = answerRepository.searchByContent(query,topic,pageRequest);
+        Long userId = authService.getCurrentUser().getId();
+        PageRequest pageRequest = PageRequest.of(page, Utils.SEARCH_RESULTS_PER_PAGE, Sort.by("viralPoints").descending());
+
+        Page<Answer> answers = answerRepository.searchByContent(query, topic, pageRequest);
+
         Long total = answers.getTotalElements();
-        List<AnswerDto> answerDtos = answers.getContent().stream().map(AnswerMapper.INSTANCE::toAnswerDTO).toList();
-        return new ListAnswerResponse(answerDtos,total);
+        List<AnswerResponse> answerResponses = answers.getContent().stream().map((answer -> AnswerMapper.toAnswerResponse(answer, userId))).toList();
+
+        return new ListAnswerResponse(answerResponses, total);
     }
 }

@@ -1,16 +1,17 @@
 package net.duchung.quora.service;
 
-import net.duchung.quora.dto.CommentDto;
+import net.duchung.quora.data.request.CommentRequest;
+import net.duchung.quora.data.response.CommentResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public interface CommentService {
-    CommentDto createComment(CommentDto commentDto);
-    CommentDto updateComment(Long id,CommentDto commentDto);
+    CommentResponse createComment(CommentRequest commentDto);
+    CommentResponse updateComment(Long id,CommentRequest commentDto);
     void deleteCommentById(Long id);
-    CommentDto getCommentById(Long id);
+    CommentResponse getCommentById(Long id);
 
-    List<CommentDto> getCommentsByAnswerId(Long answerId);
+    List<CommentResponse> getCommentsByAnswerId(Long answerId);
 }

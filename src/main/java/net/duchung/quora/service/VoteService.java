@@ -1,7 +1,7 @@
 package net.duchung.quora.service;
 
-import net.duchung.quora.dto.response.CastVoteResponse;
-import net.duchung.quora.dto.response.VoteStatusResponse;
+import net.duchung.quora.data.response.CastVoteResponse;
+import net.duchung.quora.data.response.VoteStatusResponse;
 import org.springframework.stereotype.Service;
 
 @Service

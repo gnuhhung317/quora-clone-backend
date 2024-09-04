@@ -1,7 +1,7 @@
 package net.duchung.quora.service;
 
-import net.duchung.quora.dto.request.RegisterRequest;
-import net.duchung.quora.entity.User;
+import net.duchung.quora.data.request.RegisterRequest;
+import net.duchung.quora.data.entity.User;
 import org.springframework.stereotype.Service;
 
 @Service

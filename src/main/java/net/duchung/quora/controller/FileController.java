@@ -1,9 +1,7 @@
 package net.duchung.quora.controller;
 
 import com.cloudinary.utils.ObjectUtils;
-import net.duchung.quora.config.CloudinaryConfig;
 import net.duchung.quora.service.impl.CloudinaryService;
-import net.duchung.quora.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

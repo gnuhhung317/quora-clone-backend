@@ -1,10 +1,10 @@
 package net.duchung.quora.controller;
 
-import net.duchung.quora.dto.UserDto;
-import net.duchung.quora.dto.request.RegisterRequest;
-import net.duchung.quora.dto.response.FollowResponse;
-import net.duchung.quora.entity.User;
-import net.duchung.quora.service.FileService;
+import net.duchung.quora.data.request.RegisterRequest;
+import net.duchung.quora.data.request.UserRequest;
+import net.duchung.quora.data.response.FollowUserResponse;
+import net.duchung.quora.data.response.UserProfile;
+import net.duchung.quora.data.response.UserResponse;
 import net.duchung.quora.service.UserService;
 import net.duchung.quora.service.impl.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,21 +22,25 @@ public class UserController {
     private CloudinaryService cloudinaryService;
     @Autowired
     private UserService userService;
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        UserDto user = userService.getUserById(id);
+    @GetMapping("")
+    public ResponseEntity<UserProfile> getUserById(@RequestParam(required = false) Long id) {
+        if(id == null) {
+
+            return ResponseEntity.ok(userService.getProfile());
+        }
+        UserProfile user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
     @PostMapping("")
-    public ResponseEntity<UserDto> createUser(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<UserProfile> createUser(@RequestBody RegisterRequest registerRequest) {
 
-        UserDto user = userService.createUser(registerRequest);
+        UserProfile user = userService.createUser(registerRequest);
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/")
-    public ResponseEntity<UserDto> updateUser( @RequestBody UserDto userDto) {
-        UserDto user = userService.updateUser( userDto);
+    @PutMapping("")
+    public ResponseEntity<UserProfile> updateUser( @RequestBody UserRequest userDto) {
+        UserProfile user = userService.updateUser( userDto);
         return ResponseEntity.ok(user);
     }
     @DeleteMapping("/{id}")
@@ -46,20 +50,20 @@ public class UserController {
     }
 
     @PostMapping("/follow/{followingId}")
-    public ResponseEntity<FollowResponse> follow(@PathVariable Long followingId) {
-        FollowResponse followResponse = userService.follow(followingId);
+    public ResponseEntity<FollowUserResponse> follow(@PathVariable Long followingId) {
+        FollowUserResponse followResponse = userService.follow(followingId);
 
 
         return ResponseEntity.ok(followResponse);
     }
     @PostMapping("/unfollow/{followingId}")
-    public ResponseEntity<FollowResponse> unfollow(@PathVariable Long followingId) {
-        FollowResponse followResponse = userService.unfollow( followingId);
+    public ResponseEntity<FollowUserResponse> unfollow(@PathVariable Long followingId) {
+        FollowUserResponse followResponse = userService.unfollow( followingId);
 
         return ResponseEntity.ok(followResponse);
     }
     @PostMapping("/followTopics")
-    public ResponseEntity<String> chooseTopic(@PathVariable Long id,@RequestParam List<Long> topicIds) {
+    public ResponseEntity<String> chooseTopic(@RequestParam List<Long> topicIds) {
         userService.followTopics(topicIds);
         return ResponseEntity.ok("Follow successfully");
     }
@@ -76,19 +80,19 @@ public class UserController {
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<List<UserDto>> getFollowers(@RequestParam Long userId) {
+    public ResponseEntity<List<UserResponse>> getFollowers(@RequestParam(required = false) Long userId) {
         if(userId == null) {
             return ResponseEntity.ok(userService.getFollowersByCurrentUser());
         }
-        List<UserDto> userDtos = userService.getFollowers(userId);
+        List<UserResponse> userDtos = userService.getFollowers(userId);
         return ResponseEntity.ok(userDtos);
     }
     @GetMapping("/followings")
-    public ResponseEntity<List<UserDto>> getFollowings(@RequestParam Long userId) {
+    public ResponseEntity<List<UserResponse>> getFollowings(@RequestParam(required = false) Long userId) {
         if(userId == null) {
             return ResponseEntity.ok(userService.getFollowingsByCurrentUser());
         }
-        List<UserDto> userDtos = userService.getFollowings(userId);
+        List<UserResponse> userDtos = userService.getFollowings(userId);
         return ResponseEntity.ok(userDtos);
     }
 

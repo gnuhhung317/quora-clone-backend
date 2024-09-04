@@ -1,6 +1,7 @@
 package net.duchung.quora.controller;
 
-import net.duchung.quora.dto.CommentDto;
+import net.duchung.quora.data.request.CommentRequest;
+import net.duchung.quora.data.response.CommentResponse;
 import net.duchung.quora.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +16,19 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("")
-    public ResponseEntity<CommentDto> createComment(@RequestBody CommentDto commentDto) {
-        commentDto = commentService.createComment(commentDto);
-        return ResponseEntity.ok(commentDto);
+    public ResponseEntity<CommentResponse> createComment(@RequestBody CommentRequest commentDto) {
+        CommentResponse comment = commentService.createComment(commentDto);
+        return ResponseEntity.ok(comment);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<CommentDto> getCommentById(@PathVariable Long id) {
-        CommentDto commentDto = commentService.getCommentById(id);
+    public ResponseEntity<CommentResponse> getCommentById(@PathVariable Long id) {
+        CommentResponse commentDto = commentService.getCommentById(id);
         return ResponseEntity.ok(commentDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable Long id, @RequestBody CommentDto commentDto) {
-        CommentDto comment = commentService.updateComment(id, commentDto);
+    public ResponseEntity<CommentResponse> updateComment(@PathVariable Long id, @RequestBody CommentRequest commentDto) {
+        CommentResponse comment = commentService.updateComment(id, commentDto);
         return ResponseEntity.ok(comment);
     }
 
@@ -37,8 +38,8 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
     @GetMapping("")
-    public ResponseEntity<List<CommentDto>> getCommentsByAnswerId(@RequestParam Long answerId) {
-        List<CommentDto> commentDtos = commentService.getCommentsByAnswerId(answerId);
+    public ResponseEntity<List<CommentResponse>> getCommentsByAnswerId(@RequestParam Long answerId) {
+        List<CommentResponse> commentDtos = commentService.getCommentsByAnswerId(answerId);
         return ResponseEntity.ok(commentDtos);
     }
 }

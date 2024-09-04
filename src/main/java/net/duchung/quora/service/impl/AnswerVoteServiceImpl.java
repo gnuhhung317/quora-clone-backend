@@ -1,17 +1,16 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
-import net.duchung.quora.entity.User;
-import net.duchung.quora.exception.AccessDeniedException;
+import net.duchung.quora.data.entity.User;
+import net.duchung.quora.common.exception.AccessDeniedException;
 import net.duchung.quora.service.AuthService;
 import net.duchung.quora.utils.Utils;
-import net.duchung.quora.dto.response.CastVoteResponse;
-import net.duchung.quora.dto.response.VoteStatusResponse;
-import net.duchung.quora.entity.vote.AnswerVote;
-import net.duchung.quora.exception.DataNotFoundException;
+import net.duchung.quora.data.response.CastVoteResponse;
+import net.duchung.quora.data.response.VoteStatusResponse;
+import net.duchung.quora.data.entity.vote.AnswerVote;
+import net.duchung.quora.common.exception.DataNotFoundException;
 import net.duchung.quora.repository.AnswerRepository;
 import net.duchung.quora.repository.AnswerVoteRepository;
-import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.service.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,6 +109,7 @@ public class AnswerVoteServiceImpl implements VoteService
     public Long countDownvotes(Long answerId) {
         return answerVoteRepository.countDownvotesByAnswerId(answerId);
     }
+
 
     @Override
     public VoteStatusResponse getVotesStatus(Long id) {

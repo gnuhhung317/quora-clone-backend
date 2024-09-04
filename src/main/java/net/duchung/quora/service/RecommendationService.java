@@ -1,7 +1,6 @@
 package net.duchung.quora.service;
 
-import net.duchung.quora.dto.AnswerDto;
-import net.duchung.quora.entity.Answer;
+import net.duchung.quora.data.response.AnswerResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,5 +8,5 @@ import java.util.List;
 @Service
 public interface RecommendationService {
 
-    List<AnswerDto> getRecommendationAnswers(Long userId);
+    List<AnswerResponse> getRecommendationAnswers();
 }

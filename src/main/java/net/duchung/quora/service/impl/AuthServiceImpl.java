@@ -1,7 +1,7 @@
 package net.duchung.quora.service.impl;
 
-import net.duchung.quora.dto.request.RegisterRequest;
-import net.duchung.quora.entity.User;
+import net.duchung.quora.data.request.RegisterRequest;
+import net.duchung.quora.data.entity.User;
 import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.service.AuthService;
 import net.duchung.quora.utils.JwtUtil;

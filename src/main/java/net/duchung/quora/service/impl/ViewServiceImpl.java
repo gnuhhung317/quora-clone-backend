@@ -1,12 +1,11 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
-import net.duchung.quora.dto.ViewDto;
-import net.duchung.quora.entity.Answer;
-import net.duchung.quora.entity.User;
-import net.duchung.quora.entity.View;
-import net.duchung.quora.exception.AccessDeniedException;
-import net.duchung.quora.exception.DataNotFoundException;
+import net.duchung.quora.data.dto.ViewDto;
+import net.duchung.quora.data.entity.Answer;
+import net.duchung.quora.data.entity.User;
+import net.duchung.quora.data.entity.View;
+import net.duchung.quora.common.exception.DataNotFoundException;
 import net.duchung.quora.repository.AnswerRepository;
 import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.repository.ViewRepository;
@@ -32,12 +31,12 @@ public class ViewServiceImpl implements ViewService {
     @Transactional
     public void logView(ViewDto viewDto) {
         User user = authService.getCurrentUser();
-        Optional<View> viewOpt = viewRepository.findByUserIdAndAnswerId(viewDto.getUserId(), viewDto.getAnswerId());
+        Optional<View> viewOpt = viewRepository.findByUserIdAndAnswerId(user.getId(), viewDto.getAnswerId());
         if(viewOpt.isPresent()) {
             View view = viewOpt.get();
-            if(!view.getUser().getId().equals(user.getId())) {
-                throw new AccessDeniedException("You don't have permission to log view this answer to other user");
-            }
+//            if(!view.getUser().getId().equals(user.getId())) {
+//                throw new AccessDeniedException("You don't have permission to log view this answer to other user");
+//            }
             view.setTotalDuration(view.getTotalDuration() + viewDto.getDuration());
             view.setViewCount(view.getViewCount() + 1);
             viewRepository.save(view);

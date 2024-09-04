@@ -1,6 +1,7 @@
 package net.duchung.quora.controller;
 
-import net.duchung.quora.dto.AnswerDto;
+import net.duchung.quora.data.request.AnswerRequest;
+import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.service.AnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +17,16 @@ public class AnswerController {
     private AnswerService answerService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<AnswerDto> getAnswerById(@PathVariable Long id) {
+    public ResponseEntity<AnswerResponse> getAnswerById(@PathVariable Long id) {
         return ResponseEntity.ok(answerService.getAnswerById(id));
     }
 
     @PostMapping("")
-    public ResponseEntity<AnswerDto> createAnswer(@RequestBody AnswerDto answerDto) {
+    public ResponseEntity<AnswerResponse> createAnswer(@RequestBody AnswerRequest answerDto) {
         return ResponseEntity.ok(answerService.createAnswer(answerDto));
     }
     @PutMapping("/{id}")
-    public ResponseEntity<AnswerDto> updateAnswer(@PathVariable Long id, @RequestBody AnswerDto answerDto) {
+    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long id, @RequestBody AnswerRequest answerDto) {
         return ResponseEntity.ok(answerService.updateAnswer(id, answerDto));
     }
     @DeleteMapping("/{id}")
@@ -34,7 +35,7 @@ public class AnswerController {
         return ResponseEntity.noContent().build();
     }
     @GetMapping("")
-    public ResponseEntity<List<AnswerDto>> getAnswersByQuestionId(@RequestParam Long questionId) {
+    public ResponseEntity<List<AnswerResponse>> getAnswersByQuestionId(@RequestParam Long questionId) {
         return ResponseEntity.ok(answerService.getAnswersByQuestionId(questionId));
     }
 }

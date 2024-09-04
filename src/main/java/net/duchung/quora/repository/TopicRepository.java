@@ -1,5 +1,5 @@
 package net.duchung.quora.repository;
-import net.duchung.quora.entity.Topic;
+import net.duchung.quora.data.entity.Topic;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,17 +1,16 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
-import net.duchung.quora.exception.AccessDeniedException;
+import net.duchung.quora.common.exception.AccessDeniedException;
+import net.duchung.quora.data.request.CommentRequest;
+import net.duchung.quora.data.response.CommentResponse;
 import net.duchung.quora.service.AuthService;
-import net.duchung.quora.service.UserService;
 import net.duchung.quora.utils.Utils;
-import net.duchung.quora.dto.CommentDto;
-import net.duchung.quora.entity.Answer;
-import net.duchung.quora.entity.Comment;
-import net.duchung.quora.entity.User;
-import net.duchung.quora.exception.DataNotFoundException;
-import net.duchung.quora.mapper.BaseMapper;
-import net.duchung.quora.mapper.CommentMapper;
+import net.duchung.quora.data.entity.Answer;
+import net.duchung.quora.data.entity.Comment;
+import net.duchung.quora.data.entity.User;
+import net.duchung.quora.common.exception.DataNotFoundException;
+import net.duchung.quora.data.mapper.CommentMapper;
 import net.duchung.quora.repository.AnswerRepository;
 import net.duchung.quora.repository.CommentRepository;
 import net.duchung.quora.repository.UserRepository;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -38,9 +36,8 @@ public class CommentServiceImpl implements CommentService {
     AuthService authService;
     @Override
     @Transactional
-    public CommentDto createComment(CommentDto commentDto) {
-//        Comment comment = toEntity(commentDto);
-        User user = userRepository.findById(commentDto.getUserId()).orElseThrow(() -> new DataNotFoundException("User with id "+commentDto.getUserId()+" not found"));
+    public CommentResponse createComment(CommentRequest commentDto) {
+        User user = authService.getCurrentUser();
         Answer answer = answerRepository.findById(commentDto.getAnswerId()).orElseThrow(() -> new DataNotFoundException("Answer with id "+commentDto.getAnswerId()+" not found"));
 
 
@@ -60,12 +57,12 @@ public class CommentServiceImpl implements CommentService {
         comment.setAnswer(savedAnswer);
 
         Comment savedComment= commentRepository.save(comment);
-        return toDto(savedComment);
+        return new CommentResponse(savedComment);
     }
 
     @Override
     @Transactional
-    public CommentDto updateComment(Long id,CommentDto commentDto) {
+    public CommentResponse updateComment(Long id, CommentRequest commentDto) {
 
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
         User user = authService.getCurrentUser();
@@ -83,7 +80,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setUser(user);
 
         Comment savedComment = commentRepository.save(comment);
-        return toDto(savedComment);
+        return new CommentResponse(savedComment);
     }
 
     @Override
@@ -103,24 +100,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto getCommentById(Long id) {
-        return commentRepository.findById(id).map(this::toDto).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
+    public CommentResponse getCommentById(Long id) {
+        return commentRepository.findById(id).map(CommentResponse::new).orElseThrow(() -> new DataNotFoundException("Comment with id "+id+" not found"));
     }
 
     @Override
-    public List<CommentDto> getCommentsByAnswerId(Long answerId) {
-        return commentRepository.findByAnswerId(answerId).stream().map(this::toDto).toList();
+    public List<CommentResponse> getCommentsByAnswerId(Long answerId) {
+        return commentRepository.findByAnswerId(answerId).stream().map(CommentResponse::new).toList();
     }
 
-    private CommentDto toDto(Comment comment) {
-        CommentDto commentDto=COMMENT_MAPPER.toCommentDto(comment);
-        BaseMapper.getBaseDtoAttribute(commentDto,comment);
-        return commentDto;
-    }
-    private Comment toEntity(CommentDto commentDto) {
-        Comment comment = COMMENT_MAPPER.toComment(commentDto);
 
-        return comment;
-    }
+
 
 }

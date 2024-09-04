@@ -1,8 +1,8 @@
 package net.duchung.quora.controller;
 
-import net.duchung.quora.dto.request.CastVoteRequest;
-import net.duchung.quora.dto.response.CastVoteResponse;
-import net.duchung.quora.dto.response.VoteStatusResponse;
+import net.duchung.quora.data.request.CastVoteRequest;
+import net.duchung.quora.data.response.CastVoteResponse;
+import net.duchung.quora.data.response.VoteStatusResponse;
 import net.duchung.quora.service.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

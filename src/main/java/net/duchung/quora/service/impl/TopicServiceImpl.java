@@ -1,6 +1,6 @@
 package net.duchung.quora.service.impl;
 
-import net.duchung.quora.entity.Topic;
+import net.duchung.quora.data.entity.Topic;
 import net.duchung.quora.repository.TopicRepository;
 import net.duchung.quora.service.TopicService;
 import net.duchung.quora.utils.Utils;

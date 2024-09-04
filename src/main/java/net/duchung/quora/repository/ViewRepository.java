@@ -1,7 +1,7 @@
 package net.duchung.quora.repository;
 
 
-import net.duchung.quora.entity.View;
+import net.duchung.quora.data.entity.View;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
