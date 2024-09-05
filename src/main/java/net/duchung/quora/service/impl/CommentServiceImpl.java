@@ -5,7 +5,7 @@ import net.duchung.quora.common.exception.AccessDeniedException;
 import net.duchung.quora.data.request.CommentRequest;
 import net.duchung.quora.data.response.CommentResponse;
 import net.duchung.quora.service.AuthService;
-import net.duchung.quora.utils.Utils;
+import net.duchung.quora.common.utils.Constant;
 import net.duchung.quora.data.entity.Answer;
 import net.duchung.quora.data.entity.Comment;
 import net.duchung.quora.data.entity.User;
@@ -46,11 +46,14 @@ public class CommentServiceImpl implements CommentService {
         comment.setContent(commentDto.getContent());
         if(commentDto.getParentId() != null) {
             Comment parentComment = commentRepository.findById(commentDto.getParentId()).orElseThrow(() -> new DataNotFoundException("Comment with id "+commentDto.getParentId()+" not found"));
+            if(parentComment.getParentComment() != null) {
+                throw new AccessDeniedException("Maximum level of nested comments reached");
+            }
             comment.setParentComment(parentComment);
         }
 
 
-        answer.setViralPoints(answer.getViralPoints()+Utils.VOTE_POINTS);
+        answer.setViralPoints(answer.getViralPoints()+ Constant.VOTE_POINTS);
         Answer savedAnswer = answerRepository.save(answer);
 
         comment.setUser(user);
@@ -72,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
             throw new AccessDeniedException("You don't have permission to update this comment");
         }
 
-        answer.setViralPoints(answer.getViralPoints()+Utils.VOTE_POINTS);
+        answer.setViralPoints(answer.getViralPoints()+ Constant.VOTE_POINTS);
         Answer savedAnswer = answerRepository.save(answer);
 
         comment.setAnswer(savedAnswer);
@@ -95,7 +98,7 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(id);
 
         Answer answer = comment.getAnswer();
-        answer.setViralPoints(answer.getViralPoints()- Utils.COMMENT_POINTS);
+        answer.setViralPoints(answer.getViralPoints()- Constant.COMMENT_POINTS);
         answerRepository.save(answer);
     }
 

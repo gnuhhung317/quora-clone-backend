@@ -29,7 +29,7 @@ public class Question extends BaseEntity {
     inverseJoinColumns = @JoinColumn(name = "topic_id"))
     private Set<Topic> topics;
 
-    @OneToMany (mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany (mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Answer> answers;
 
     @OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)

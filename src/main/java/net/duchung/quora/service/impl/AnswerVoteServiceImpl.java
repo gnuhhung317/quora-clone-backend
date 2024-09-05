@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import net.duchung.quora.data.entity.User;
 import net.duchung.quora.common.exception.AccessDeniedException;
 import net.duchung.quora.service.AuthService;
-import net.duchung.quora.utils.Utils;
+import net.duchung.quora.common.utils.Constant;
 import net.duchung.quora.data.response.CastVoteResponse;
 import net.duchung.quora.data.response.VoteStatusResponse;
 import net.duchung.quora.data.entity.vote.AnswerVote;
@@ -41,7 +41,7 @@ public class AnswerVoteServiceImpl implements VoteService
             newAnswerVote.setVoter(user);
             newAnswerVote.setIsUpvote(isUpvote);
             //increase viral points
-            newAnswerVote.getAnswer().setViralPoints(newAnswerVote.getAnswer().getViralPoints()+ Utils.VOTE_POINTS);
+            newAnswerVote.getAnswer().setViralPoints(newAnswerVote.getAnswer().getViralPoints()+ Constant.VOTE_POINTS);
             answerVoteRepository.save(newAnswerVote);
 
             CastVoteResponse castVoteResponse = new CastVoteResponse();
@@ -56,9 +56,9 @@ public class AnswerVoteServiceImpl implements VoteService
 
                 // change viral points;
                 if(isUpvote) {
-                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()+ Utils.VOTE_POINTS*2);
+                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()+ Constant.VOTE_POINTS*2);
                 }else {
-                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()- Utils.VOTE_POINTS*2);
+                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()- Constant.VOTE_POINTS*2);
                 }
 
                 answerVoteRepository.save(answerVote);
@@ -73,9 +73,9 @@ public class AnswerVoteServiceImpl implements VoteService
                 answerVoteRepository.delete(answerVote);
                 //erase viral points
                 if(isUpvote) {
-                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()- Utils.VOTE_POINTS);
+                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()- Constant.VOTE_POINTS);
                 }else {
-                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()+ Utils.VOTE_POINTS);
+                    answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()+ Constant.VOTE_POINTS);
                 }
 
                 isUpvote=null;

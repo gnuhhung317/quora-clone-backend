@@ -4,7 +4,7 @@ import net.duchung.quora.data.request.RegisterRequest;
 import net.duchung.quora.data.entity.User;
 import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.service.AuthService;
-import net.duchung.quora.utils.JwtUtil;
+import net.duchung.quora.common.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;

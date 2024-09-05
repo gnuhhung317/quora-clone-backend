@@ -143,7 +143,14 @@ public class QuestionServiceImpl implements QuestionService {
         }
 
     }
+    @Override
+    public void test(){
+        List<Question> questions = questionRepository.findByUserId(123l);
+        for (Question question : questions){
+            question.getAnswers();
+        }
 
+    }
 
 
 }

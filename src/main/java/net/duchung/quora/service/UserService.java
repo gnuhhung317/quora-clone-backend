@@ -41,6 +41,7 @@ public interface UserService {
     List<UserResponse> getFollowings(Long userId);
     List<UserResponse> getFollowingsByCurrentUser();
 
+    List<Long> getUserIds();
 
 
 

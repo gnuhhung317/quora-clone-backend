@@ -23,4 +23,6 @@ public interface QuestionService {
 
     FollowQuestionResponse unfollowQuestion(Long id);
 
+    void test();
+
 }

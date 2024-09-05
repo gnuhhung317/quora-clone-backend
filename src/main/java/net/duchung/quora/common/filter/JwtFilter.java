@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.duchung.quora.common.exception.JwtAuthenticationException;
 import net.duchung.quora.common.security.CustomUserDetailsService;
-import net.duchung.quora.utils.JwtUtil;
+import net.duchung.quora.common.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

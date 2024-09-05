@@ -1,4 +1,4 @@
-package net.duchung.quora.utils;
+package net.duchung.quora.common.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

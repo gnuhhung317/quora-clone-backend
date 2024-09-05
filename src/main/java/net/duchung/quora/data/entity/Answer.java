@@ -40,9 +40,9 @@ public class Answer extends BaseEntity {
     private User user;
 
 
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<AnswerVote> votes;
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<Comment> comments;
 
     public void addComment(Comment comment) {

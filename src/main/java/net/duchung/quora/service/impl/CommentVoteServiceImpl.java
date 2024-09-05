@@ -3,7 +3,7 @@ package net.duchung.quora.service.impl;
 import net.duchung.quora.data.entity.User;
 import net.duchung.quora.common.exception.AccessDeniedException;
 import net.duchung.quora.service.AuthService;
-import net.duchung.quora.utils.Utils;
+import net.duchung.quora.common.utils.Constant;
 import net.duchung.quora.data.response.CastVoteResponse;
 import net.duchung.quora.data.response.VoteStatusResponse;
 import net.duchung.quora.data.entity.vote.CommentVote;
@@ -45,7 +45,7 @@ public class CommentVoteServiceImpl implements VoteService {
             newCommentVote.setIsUpvote(isUpvote);
 
             //increase viral points
-            newCommentVote.getComment().setViralPoints(newCommentVote.getComment().getViralPoints() + Utils.VOTE_POINTS);
+            newCommentVote.getComment().setViralPoints(newCommentVote.getComment().getViralPoints() + Constant.VOTE_POINTS);
             commentVoteRepository.save(newCommentVote);
 
             CastVoteResponse castVoteResponse = new CastVoteResponse();
@@ -59,9 +59,9 @@ public class CommentVoteServiceImpl implements VoteService {
             if (commentVote.getIsUpvote() != isUpvote) {
 
                 if(isUpvote) {
-                    commentVote.getComment().setViralPoints(commentVote.getComment().getViralPoints() + Utils.VOTE_POINTS * 2);
+                    commentVote.getComment().setViralPoints(commentVote.getComment().getViralPoints() + Constant.VOTE_POINTS * 2);
                 } else {
-                    commentVote.getComment().setViralPoints(commentVote.getComment().getViralPoints() - Utils.VOTE_POINTS * 2);
+                    commentVote.getComment().setViralPoints(commentVote.getComment().getViralPoints() - Constant.VOTE_POINTS * 2);
                 }
                 commentVote.setIsUpvote(isUpvote);
                 commentVoteRepository.save(commentVote);
@@ -76,9 +76,9 @@ public class CommentVoteServiceImpl implements VoteService {
                 commentVoteRepository.delete(commentVote);
                 //erase viral points
                 if(isUpvote) {
-                    commentVote.getComment().setViralPoints( commentVote.getComment().getViralPoints()- Utils.VOTE_POINTS);
+                    commentVote.getComment().setViralPoints( commentVote.getComment().getViralPoints()- Constant.VOTE_POINTS);
                 }else {
-                    commentVote.getComment().setViralPoints( commentVote.getComment().getViralPoints()+ Utils.VOTE_POINTS);
+                    commentVote.getComment().setViralPoints( commentVote.getComment().getViralPoints()+ Constant.VOTE_POINTS);
                 }
 
                 isUpvote = null;

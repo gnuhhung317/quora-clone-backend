@@ -211,6 +211,8 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
+    @Override
+    public List<Long> getUserIds() {
+        return userRepository.getIds();
+    }
 }

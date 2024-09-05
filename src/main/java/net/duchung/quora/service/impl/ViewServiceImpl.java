@@ -34,9 +34,7 @@ public class ViewServiceImpl implements ViewService {
         Optional<View> viewOpt = viewRepository.findByUserIdAndAnswerId(user.getId(), viewDto.getAnswerId());
         if(viewOpt.isPresent()) {
             View view = viewOpt.get();
-//            if(!view.getUser().getId().equals(user.getId())) {
-//                throw new AccessDeniedException("You don't have permission to log view this answer to other user");
-//            }
+
             view.setTotalDuration(view.getTotalDuration() + viewDto.getDuration());
             view.setViewCount(view.getViewCount() + 1);
             viewRepository.save(view);
