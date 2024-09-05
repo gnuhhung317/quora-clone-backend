@@ -1,4 +1,4 @@
-package net.duchung.quora.utils;
+package net.duchung.quora.common.utils;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
