@@ -1,8 +1,12 @@
 package net.duchung.quora;
 
+import jakarta.transaction.Transactional;
+import net.duchung.quora.data.document.AnswerDocument;
 import net.duchung.quora.data.entity.Answer;
 import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.repository.AnswerRepository;
+import net.duchung.quora.repository.elastic.EsAnswerRepository;
+import net.duchung.quora.service.AnswerService;
 import net.duchung.quora.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -20,6 +24,8 @@ public class QuoraApplication {
 	private AnswerRepository answerRepository;
 
 	@Autowired
+	private AnswerService answerService;
+	@Autowired
 
 	private RecommendationService recommendationService;
 	public static void main(String[] args) {
@@ -32,11 +38,6 @@ public class QuoraApplication {
 	@Bean
 	ApplicationRunner applicationRunner() {
 		return args -> {
-//			SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("strin@gmai.gg", "admin"));
-//		recommendationService.getRecommendationAnswers();
-//			List<Answer> answers = answerRepository.findAll();
-////			List<AnswerResponse> answerResponses = answers.stream().map(a -> new AnswerResponse(a   )).toList();
-//			List<AnswerDocument> answerDocuments = answers.stream().map(AnswerDocument::new).toList();
-//			esAnswerRepository.saveAll(answerDocuments);
+			answerService.test();
 		};}
 }

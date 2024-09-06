@@ -18,4 +18,6 @@ public interface AnswerService {
     List<AnswerResponse> getAnswersByQuestionId(Long questionId);
 
     List<AnswerResponse> getAnswersByUserId(Long userId);
+
+//    void test();
 }
