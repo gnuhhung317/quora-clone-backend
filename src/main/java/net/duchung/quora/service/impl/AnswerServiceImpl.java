@@ -1,6 +1,9 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
+import net.duchung.quora.data.document.AnswerDocument;
+import net.duchung.quora.data.document.FollowDocument;
+import net.duchung.quora.data.entity.FollowUser;
 import net.duchung.quora.data.request.AnswerRequest;
 import net.duchung.quora.data.entity.Answer;
 import net.duchung.quora.data.entity.Question;
@@ -12,6 +15,8 @@ import net.duchung.quora.data.mapper.BaseMapper;
 import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.repository.AnswerRepository;
 import net.duchung.quora.repository.QuestionRepository;
+import net.duchung.quora.repository.UserFollowRepository;
+import net.duchung.quora.repository.elastic.EsAnswerRepository;
 import net.duchung.quora.service.AnswerService;
 import net.duchung.quora.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +29,10 @@ import java.util.List;
 public class AnswerServiceImpl implements AnswerService {
     @Autowired
     AnswerRepository answerRepository;
+    @Autowired
+    UserFollowRepository userFollowRepository;
+    @Autowired
+    EsAnswerRepository esAnswerRepository;
     @Autowired
     QuestionRepository questionRepository;;
 
@@ -89,5 +98,24 @@ public class AnswerServiceImpl implements AnswerService {
     public List<AnswerResponse> getAnswersByQuestionId(Long questionId) {
         Long userId = authService.getCurrentUser().getId();
         return answerRepository.findByQuestionId(questionId).stream().map(answer -> AnswerMapper.toAnswerResponse(answer,userId)).toList();
+    }
+
+    @Override
+    public List<AnswerResponse> getAnswersByUserId(Long userId) {
+        Long currentUserId = authService.getCurrentUser().getId();
+
+        return answerRepository.findByUserId(userId).stream().map(answer -> AnswerMapper.toAnswerResponse(answer,currentUserId)).toList();
+    }
+
+    @Override
+    @Transactional
+    public void test() {
+       List<Answer> answers = answerRepository.findAll();
+
+       List<AnswerDocument> answerDocuments = answers.stream().map(answer -> new AnswerDocument(answer)).toList();
+       for (AnswerDocument answerDocument : answerDocuments) {
+           esAnswerRepository.save(answerDocument);
+       }
+
     }
 }

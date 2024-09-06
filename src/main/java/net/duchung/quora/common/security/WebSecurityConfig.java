@@ -1,6 +1,6 @@
-package net.duchung.quora.common.config;
+package net.duchung.quora.common.security;
 
-import net.duchung.quora.common.filter.JwtFilter;
+import net.duchung.quora.common.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

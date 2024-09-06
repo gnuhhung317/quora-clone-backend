@@ -16,4 +16,8 @@ public interface AnswerService {
 
     AnswerResponse getAnswerById(Long id);
     List<AnswerResponse> getAnswersByQuestionId(Long questionId);
+
+    List<AnswerResponse> getAnswersByUserId(Long userId);
+
+    void test();
 }

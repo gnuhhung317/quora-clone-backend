@@ -3,6 +3,7 @@ package net.duchung.quora.common.exception;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.io.SerializationException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.ServletException;
 import org.springframework.beans.PropertyAccessException;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,9 @@ public class GlobalExceptionHandler {
 
     }
 
+
 @ExceptionHandler({ExpiredJwtException.class})
+
     public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
@@ -71,6 +74,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleJwtException(JwtException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFoundException(UsernameNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
     @ExceptionHandler(PropertyAccessException.class)
     public ResponseEntity<String> handlePropertyAccessException(PropertyAccessException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

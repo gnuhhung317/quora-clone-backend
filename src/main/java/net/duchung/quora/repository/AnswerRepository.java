@@ -26,6 +26,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     @Query("SELECT c.answer FROM Comment c WHERE c.id = :commentId")
     Optional<Answer> findByCommentId(Long commentId);
 
+    @Query(value = "SELECT a.* FROM answers a where a.user_id = :userId",nativeQuery = true)
+    List<Answer> findByUserId(@Param("userId") Long userId);
+
     @Query("SELECT a FROM Answer a WHERE a.id = :answerId AND a.user.id = :userId")
     Boolean isUpVotedByUser(@Param("answerId") Long answerId, @Param("userId") Long userId);
     @Query("SELECT a FROM Answer a WHERE a.question.id = :questionId")

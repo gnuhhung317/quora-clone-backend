@@ -1,4 +1,4 @@
-package net.duchung.quora.common.utils;
+package net.duchung.quora.common.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

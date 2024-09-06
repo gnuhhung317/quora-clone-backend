@@ -34,8 +34,12 @@ public class AnswerController {
         answerService.deleteAnswerById(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("")
-    public ResponseEntity<List<AnswerResponse>> getAnswersByQuestionId(@RequestParam Long questionId) {
+    @GetMapping("/question/{id}")
+    public ResponseEntity<List<AnswerResponse>> getAnswersByQuestionId(@PathVariable("id") Long questionId) {
         return ResponseEntity.ok(answerService.getAnswersByQuestionId(questionId));
+    }
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<AnswerResponse>> getAnswersByUserId(@PathVariable Long id) {
+        return ResponseEntity.ok(answerService.getAnswersByUserId(id));
     }
 }
