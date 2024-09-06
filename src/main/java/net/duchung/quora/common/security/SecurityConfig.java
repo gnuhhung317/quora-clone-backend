@@ -1,4 +1,4 @@
-package net.duchung.quora.common.config;
+package net.duchung.quora.common.security;
 
 import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.common.security.CustomUserDetailsService;

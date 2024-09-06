@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 @Data
 public class QuestionResponse extends BaseDto {
 
-    private Long id;
     private String title;
     private UserResponse author;
     private Long followCount;
@@ -20,7 +19,7 @@ public class QuestionResponse extends BaseDto {
     private Set<Long> topicIds;
 
     public QuestionResponse(Question question, Long userId) {
-        this.id = question.getId();
+
         this.setId(question.getId());
         this.setTitle(question.getTitle());
         UserResponse user = new UserResponse(question.getUser());

@@ -90,4 +90,11 @@ public class AnswerServiceImpl implements AnswerService {
         Long userId = authService.getCurrentUser().getId();
         return answerRepository.findByQuestionId(questionId).stream().map(answer -> AnswerMapper.toAnswerResponse(answer,userId)).toList();
     }
+
+    @Override
+    public List<AnswerResponse> getAnswersByUserId(Long userId) {
+        Long currentUserId = authService.getCurrentUser().getId();
+
+        return answerRepository.findByUserId(userId).stream().map(answer -> AnswerMapper.toAnswerResponse(answer,currentUserId)).toList();
+    }
 }

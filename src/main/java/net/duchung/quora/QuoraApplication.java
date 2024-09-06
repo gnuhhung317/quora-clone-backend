@@ -1,10 +1,8 @@
 package net.duchung.quora;
 
-import net.duchung.quora.data.document.AnswerDocument;
 import net.duchung.quora.data.entity.Answer;
 import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.repository.AnswerRepository;
-import net.duchung.quora.repository.elastic.EsAnswerRepository;
 import net.duchung.quora.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -20,8 +18,7 @@ import java.util.List;
 public class QuoraApplication {
 	@Autowired
 	private AnswerRepository answerRepository;
-    @Autowired
-	private EsAnswerRepository esAnswerRepository;
+
 	@Autowired
 
 	private RecommendationService recommendationService;
@@ -37,9 +34,9 @@ public class QuoraApplication {
 		return args -> {
 //			SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("strin@gmai.gg", "admin"));
 //		recommendationService.getRecommendationAnswers();
-			List<Answer> answers = answerRepository.findAll();
-//			List<AnswerResponse> answerResponses = answers.stream().map(a -> new AnswerResponse(a   )).toList();
-			List<AnswerDocument> answerDocuments = answers.stream().map(AnswerDocument::new).toList();
-			esAnswerRepository.saveAll(answerDocuments);
+//			List<Answer> answers = answerRepository.findAll();
+////			List<AnswerResponse> answerResponses = answers.stream().map(a -> new AnswerResponse(a   )).toList();
+//			List<AnswerDocument> answerDocuments = answers.stream().map(AnswerDocument::new).toList();
+//			esAnswerRepository.saveAll(answerDocuments);
 		};}
 }

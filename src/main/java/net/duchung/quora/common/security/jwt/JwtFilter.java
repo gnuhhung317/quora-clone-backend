@@ -1,4 +1,4 @@
-package net.duchung.quora.common.filter;
+package net.duchung.quora.common.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.duchung.quora.common.exception.JwtAuthenticationException;
 import net.duchung.quora.common.security.CustomUserDetailsService;
-import net.duchung.quora.common.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

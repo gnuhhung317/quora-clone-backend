@@ -9,7 +9,6 @@ import net.duchung.quora.data.dto.BaseDto;
 @NoArgsConstructor
 @ToString
 public class AnswerResponse extends BaseDto {
-    private Long id;
     private String content;
 
     private QuestionResponse question;
