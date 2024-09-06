@@ -1,6 +1,6 @@
 package net.duchung.quora.data.mapper;
 
-import net.duchung.quora.data.response.QuestionInteractionResponse;
+import net.duchung.quora.data.response.AnswerInteractionResponse;
 import net.duchung.quora.data.entity.Answer;
 import net.duchung.quora.data.entity.vote.AnswerVote;
 import net.duchung.quora.data.response.AnswerResponse;
@@ -26,7 +26,7 @@ public class AnswerMapper {
 
         answerResponse.setQuestion(question);
 
-        QuestionInteractionResponse interactionDto = new QuestionInteractionResponse();
+        AnswerInteractionResponse interactionDto = new AnswerInteractionResponse();
 
         interactionDto.setUpvotes(countUpvotes(answer.getVotes()));
         interactionDto.setDownvotes(countDownvotes(answer.getVotes()));

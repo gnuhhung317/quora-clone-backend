@@ -1,28 +1,29 @@
 package net.duchung.quora;
 
+import net.duchung.quora.data.document.AnswerDocument;
+import net.duchung.quora.data.entity.Answer;
+import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.repository.AnswerRepository;
-import net.duchung.quora.service.QuestionService;
+import net.duchung.quora.repository.elastic.EsAnswerRepository;
 import net.duchung.quora.service.RecommendationService;
-import net.duchung.quora.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.List;
 
 @SpringBootApplication
 @EnableJpaAuditing
 public class QuoraApplication {
 	@Autowired
 	private AnswerRepository answerRepository;
+    @Autowired
+	private EsAnswerRepository esAnswerRepository;
+	@Autowired
 
-	@Autowired
-	private RedisService redisService;
-	@Autowired
 	private RecommendationService recommendationService;
 	public static void main(String[] args) {
 		SpringApplication.run(QuoraApplication.class, args);
@@ -31,10 +32,14 @@ public class QuoraApplication {
 
 
 	}
-//	@Bean
-//	ApplicationRunner applicationRunner() {
-//		return args -> {
+	@Bean
+	ApplicationRunner applicationRunner() {
+		return args -> {
 //			SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("strin@gmai.gg", "admin"));
 //		recommendationService.getRecommendationAnswers();
-//		};}
+			List<Answer> answers = answerRepository.findAll();
+//			List<AnswerResponse> answerResponses = answers.stream().map(a -> new AnswerResponse(a   )).toList();
+			List<AnswerDocument> answerDocuments = answers.stream().map(AnswerDocument::new).toList();
+			esAnswerRepository.saveAll(answerDocuments);
+		};}
 }

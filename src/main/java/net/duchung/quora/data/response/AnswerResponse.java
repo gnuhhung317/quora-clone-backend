@@ -18,7 +18,7 @@ public class AnswerResponse extends BaseDto {
 
     private long viralPoints;
 
-    private QuestionInteractionResponse interactions;
+    private AnswerInteractionResponse interactions;
 
     private Boolean isUpvoted;
 
