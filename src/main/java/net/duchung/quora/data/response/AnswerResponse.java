@@ -1,7 +1,11 @@
 package net.duchung.quora.data.response;
 
 import lombok.*;
+import net.duchung.quora.data.document.AnswerDocument;
 import net.duchung.quora.data.dto.BaseDto;
+import net.duchung.quora.data.entity.Answer;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter

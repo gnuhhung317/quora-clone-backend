@@ -23,7 +23,6 @@ import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
-    private final static CommentMapper COMMENT_MAPPER = Mappers.getMapper(CommentMapper.class);
     @Autowired
     CommentRepository commentRepository;
     @Autowired

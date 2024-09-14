@@ -1,5 +1,6 @@
 package net.duchung.quora.data.mapper;
 
+import net.duchung.quora.data.document.AnswerDocument;
 import net.duchung.quora.data.response.AnswerInteractionResponse;
 import net.duchung.quora.data.entity.Answer;
 import net.duchung.quora.data.entity.vote.AnswerVote;

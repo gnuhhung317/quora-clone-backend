@@ -110,8 +110,9 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     @Transactional
     public void test() {
-       List<Answer> answers = answerRepository.findAll();
+//       List<Answer> answers = answerRepository.findAll();
 
+       List<Answer> answers = answerRepository.findAll();
        List<AnswerDocument> answerDocuments = answers.stream().map(answer -> new AnswerDocument(answer)).toList();
        for (AnswerDocument answerDocument : answerDocuments) {
            esAnswerRepository.save(answerDocument);

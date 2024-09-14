@@ -1,6 +1,6 @@
 package net.duchung.quora.data.response;
 
-import lombok.Data;
+import lombok.*;
 import net.duchung.quora.data.dto.BaseDto;
 import net.duchung.quora.data.entity.Question;
 import net.duchung.quora.data.entity.Topic;
@@ -8,7 +8,10 @@ import net.duchung.quora.data.entity.Topic;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class QuestionResponse extends BaseDto {
 
     private String title;

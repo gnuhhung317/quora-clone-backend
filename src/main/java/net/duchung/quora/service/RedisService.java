@@ -15,7 +15,8 @@ import java.util.Set;
 @Service
 public interface RedisService {
     void saveSuggest(Long userId,Map<Long,Double> suggest);
-    Set<ZSetOperations.TypedTuple<Object>> getUserScoresSorted(Long userId);
+    Map<Long,Double> getUserScoresSorted(Long userId);
+    Boolean isRunOutOfAvailableSuggest(Long userId);
 
 
     }

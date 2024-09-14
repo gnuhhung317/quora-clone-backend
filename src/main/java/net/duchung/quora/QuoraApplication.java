@@ -1,12 +1,9 @@
 package net.duchung.quora;
 
-import jakarta.transaction.Transactional;
-import net.duchung.quora.data.document.AnswerDocument;
-import net.duchung.quora.data.entity.Answer;
-import net.duchung.quora.data.response.AnswerResponse;
-import net.duchung.quora.repository.AnswerRepository;
 import net.duchung.quora.repository.elastic.EsAnswerRepository;
 import net.duchung.quora.service.AnswerService;
+import net.duchung.quora.service.ElasticSearchService;
+import net.duchung.quora.service.MailService;
 import net.duchung.quora.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -15,16 +12,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import java.util.List;
-
 @SpringBootApplication
 @EnableJpaAuditing
 public class QuoraApplication {
+
 	@Autowired
-	private AnswerRepository answerRepository;
+	MailService mailService;
 
 	@Autowired
 	private AnswerService answerService;
+	@Autowired
+
+	private ElasticSearchService elasticSearchService;
 	@Autowired
 
 	private RecommendationService recommendationService;
@@ -38,6 +37,6 @@ public class QuoraApplication {
 	@Bean
 	ApplicationRunner applicationRunner() {
 		return args -> {
-			answerService.test();
+//			mailService.sendVerificationLinkToEmail("duchung04st@gmail.com", "token");
 		};}
 }

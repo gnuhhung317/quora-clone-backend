@@ -19,6 +19,7 @@ public class User extends BaseEntity {
     private String password;
     private String fullName;
     private String avatarUrl;
+    private boolean isActive;
 
     @ManyToMany
     @JoinTable(name = "user_topic",

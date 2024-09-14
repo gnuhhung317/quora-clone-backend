@@ -11,5 +11,7 @@ public interface AuthService {
 
     String register(RegisterRequest registerRequest);
 
+    String verify(String code);
+
     User getCurrentUser();
 }

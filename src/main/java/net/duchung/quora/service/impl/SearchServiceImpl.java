@@ -34,6 +34,6 @@ public class SearchServiceImpl implements SearchService {
         Long total = answers.getTotalElements();
         List<AnswerResponse> answerResponses = answers.getContent().stream().map((answer -> AnswerMapper.toAnswerResponse(answer, userId))).toList();
 
-        return new ListAnswerResponse(answerResponses, total);
+        return new ListAnswerResponse(answerResponses, total/Constant.SEARCH_RESULTS_PER_PAGE);
     }
 }

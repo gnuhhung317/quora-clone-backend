@@ -31,18 +31,18 @@ public class Answer extends BaseEntity {
     private String content;
 
     private long viralPoints;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "question_id",nullable = false)
     private Question question;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
 
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
     private Set<AnswerVote> votes;
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<Comment> comments;
 
     public void addComment(Comment comment) {

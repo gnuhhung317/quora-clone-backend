@@ -98,7 +98,7 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     List<Object> recommendationByRecentAnswerInTopic(@Param("userId") Long userId);
     @Query(value = "SELECT a.id, " +
             "a.viral_points/POW(1.6, COALESCE(v.view_count, 0))/POW(1.001,TIMESTAMPDIFF(MINUTE, a.created_at, NOW())*1.0) as order_value " +            "FROM answers a " +
-            "JOIN views v ON v.answer_id = a.id AND v.user_id = :userId "
+            "LEFT JOIN views v ON v.answer_id = a.id AND v.user_id = :userId "
               ,nativeQuery = true)
     List<Object[]> recommendationByViralAnswerAllTopic(@Param("userId") Long userId);
 
