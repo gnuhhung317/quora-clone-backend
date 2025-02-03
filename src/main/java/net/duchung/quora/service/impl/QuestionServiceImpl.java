@@ -44,6 +44,7 @@ public class QuestionServiceImpl implements QuestionService {
 
         Question question = new Question();
         question.setTitle(questionRequest.getTitle());
+        question.setContent(questionRequest.getContent());
         question.setTopics(new HashSet<>(topicRepository.findAllById(questionRequest.getTopicIds())));
 
         question.setUser(user);
@@ -61,6 +62,7 @@ public class QuestionServiceImpl implements QuestionService {
             throw new AccessDeniedException("You don't have permission to update this question");
         }
         question.setTitle(questionDto.getTitle());
+        question.setContent(questionDto.getContent());
         question.setTopics(new HashSet<>(topicRepository.findAllById(questionDto.getTopicIds())));
         Question savedQuestion = questionRepository.save(question);
 
@@ -88,6 +90,11 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public List<QuestionResponse> getQuestionsByUserId(Long id) {
         return questionRepository.findByUserId(id).stream().map(question -> new QuestionResponse(question, id)).toList();
+    }
+
+    @Override
+    public List<QuestionResponse> getQuestionsByTopicId(Long topicId) {
+        return questionRepository.findAllQuestionByTopicId(topicId).stream().map(question -> new QuestionResponse(question, authService.getCurrentUser().getId())).toList();
     }
 
     @Override

@@ -18,6 +18,11 @@ public class TopicController {
     public ResponseEntity<List<TopicResponse>> getAllTopics() {
         return ResponseEntity.ok(topicService.getAllTopics());
     }
+
+    @GetMapping("/suggest-topic")
+    public ResponseEntity<List<TopicResponse>> suggestTopic() {
+        return ResponseEntity.ok(topicService.suggestTopic());
+    }
     @GetMapping("/{id}")
     public ResponseEntity<TopicResponse> getTopicById(@PathVariable Long id) {
         return ResponseEntity.ok(topicService.getTopicById(id));

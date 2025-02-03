@@ -17,6 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class Comment extends BaseEntity {
 
+    @Lob
     private String content;
 
     private long viralPoints;

@@ -21,4 +21,11 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             " WHERE ut.user_id = :userId" +
             " Order BY RAND() LIMIT 5",nativeQuery = true  )
     List<Question> findBySuggestQuestion(Long userId);
+
+    @Query(""" 
+            SELECT q FROM Question q 
+            JOIN q.topics t 
+            WHERE t.id = :topicId 
+            ORDER BY RAND() LIMIT 30""")
+    List<Question> findAllQuestionByTopicId(Long topicId);
 }

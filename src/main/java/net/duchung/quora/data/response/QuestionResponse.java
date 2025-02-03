@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class QuestionResponse extends BaseDto {
 
     private String title;
+    private String content;
     private UserResponse author;
     private Long followCount;
     private Long answerCount;

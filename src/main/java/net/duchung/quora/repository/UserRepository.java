@@ -16,4 +16,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u.id FROM User u")
     List<Long> getIds();
+
+    @Query("""
+        SELECT COUNT(*) > 0 FROM User u
+        JOIN u.followings uf
+        WHERE uf.id = :followingId
+        AND u.id = :userId
+""")
+    boolean isFollowed(Long userId, Long followingId);
 }

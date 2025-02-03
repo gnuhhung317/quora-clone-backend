@@ -10,7 +10,6 @@ import net.duchung.quora.data.entity.Answer;
 import net.duchung.quora.data.mapper.AnswerMapper;
 import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.repository.AnswerRepository;
-import net.duchung.quora.repository.elastic.EsAnswerRepository;
 import net.duchung.quora.service.AnswerService;
 import net.duchung.quora.service.AuthService;
 import net.duchung.quora.service.ElasticSearchService;
@@ -25,8 +24,8 @@ import java.util.stream.Collectors;
 @Service
 public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Autowired
-    private EsAnswerRepository esAnswerRepository;
-    @Autowired
+//    private EsAnswerRepository esAnswerRepository;
+//    @Autowired
     private AnswerRepository answerRepository;
 
     @Autowired
@@ -36,15 +35,15 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
     @Override
     public List<AnswerResponse> searchByContent(String content) throws IOException {
-
-        Supplier<Query>  supplier = ()->Query.of(q->q.fuzzy(createFuzzyQuery(content)));
-        SearchRequest request = SearchRequest.of(s->s.index("answer").query(supplier.get()));
-        SearchResponse<AnswerDocument> response = elasticsearchClient.search(request, AnswerDocument.class);
-        System.out.println("elasticsearch supplier fuzzy query "+response.toString());
-
-        List<Answer> answers = answerRepository.findAllById(response.hits().hits().stream().map(hit -> hit.source().getId()).collect(Collectors.toList()));
-
-        return answers.stream().map(answer -> AnswerMapper.toAnswerResponse(answer,authService.getCurrentUser().getId())).collect(Collectors.toList());
+        return null;
+//        Supplier<Query>  supplier = ()->Query.of(q->q.fuzzy(createFuzzyQuery(content)));
+//        SearchRequest request = SearchRequest.of(s->s.index("answer").query(supplier.get()));
+//        SearchResponse<AnswerDocument> response = elasticsearchClient.search(request, AnswerDocument.class);
+//        System.out.println("elasticsearch supplier fuzzy query "+response.toString());
+//
+//        List<Answer> answers = answerRepository.findAllById(response.hits().hits().stream().map(hit -> hit.source().getId()).collect(Collectors.toList()));
+//
+//        return answers.stream().map(answer -> AnswerMapper.toAnswerResponse(answer,authService.getCurrentUser().getId())).collect(Collectors.toList());
     }
 
     public FuzzyQuery createFuzzyQuery(String approximateProductName){

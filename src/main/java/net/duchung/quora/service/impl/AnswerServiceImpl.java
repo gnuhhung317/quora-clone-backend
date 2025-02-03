@@ -16,7 +16,6 @@ import net.duchung.quora.data.response.AnswerResponse;
 import net.duchung.quora.repository.AnswerRepository;
 import net.duchung.quora.repository.QuestionRepository;
 import net.duchung.quora.repository.UserFollowRepository;
-import net.duchung.quora.repository.elastic.EsAnswerRepository;
 import net.duchung.quora.service.AnswerService;
 import net.duchung.quora.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,8 @@ public class AnswerServiceImpl implements AnswerService {
     AnswerRepository answerRepository;
     @Autowired
     UserFollowRepository userFollowRepository;
-    @Autowired
-    EsAnswerRepository esAnswerRepository;
+//    @Autowired
+//    EsAnswerRepository esAnswerRepository;
     @Autowired
     QuestionRepository questionRepository;;
 
@@ -107,16 +106,16 @@ public class AnswerServiceImpl implements AnswerService {
         return answerRepository.findByUserId(userId).stream().map(answer -> AnswerMapper.toAnswerResponse(answer,currentUserId)).toList();
     }
 
-    @Override
-    @Transactional
-    public void test() {
+//    @Override
+//    @Transactional
+//    public void test() {
+////       List<Answer> answers = answerRepository.findAll();
+//
 //       List<Answer> answers = answerRepository.findAll();
-
-       List<Answer> answers = answerRepository.findAll();
-       List<AnswerDocument> answerDocuments = answers.stream().map(answer -> new AnswerDocument(answer)).toList();
-       for (AnswerDocument answerDocument : answerDocuments) {
-           esAnswerRepository.save(answerDocument);
-       }
-
-    }
+//       List<AnswerDocument> answerDocuments = answers.stream().map(answer -> new AnswerDocument(answer)).toList();
+//       for (AnswerDocument answerDocument : answerDocuments) {
+//           esAnswerRepository.save(answerDocument);
+//       }
+//
+//    }
 }

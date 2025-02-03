@@ -32,7 +32,7 @@ public class MailServiceImpl implements MailService {
         MimeMessage message = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(" mailtrap@demomailtrap.com"); // Set a valid 'from' address
+            helper.setFrom("mailtrap@demomailtrap.com"); // Set a valid 'from' address
             helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(content, true); // Enable HTML

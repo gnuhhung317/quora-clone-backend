@@ -14,5 +14,6 @@ import java.util.Set;
 public class QuestionRequest {
 
     private String title;
+    private String content;
     private Set<Long> topicIds;
 }

@@ -19,5 +19,5 @@ public interface AnswerService {
 
     List<AnswerResponse> getAnswersByUserId(Long userId);
 
-    void test();
+//    void test();
 }

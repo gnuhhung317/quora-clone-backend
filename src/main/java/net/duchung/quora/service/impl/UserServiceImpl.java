@@ -78,7 +78,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfile getUserById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("User not found"));
-        return new UserProfile(user);
+        UserProfile userProfile = new UserProfile(user);
+        userProfile.setFollowed(checkIfUserIsFollowed(authService.getCurrentUser().getId(), id));
+        return userProfile;
     }
 
     @Override
@@ -214,5 +216,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Long> getUserIds() {
         return userRepository.getIds();
+    }
+    public boolean checkIfUserIsFollowed(Long userId, Long followingId) {
+        return userRepository.isFollowed(userId, followingId);
     }
 }

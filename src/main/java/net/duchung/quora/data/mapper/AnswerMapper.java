@@ -19,7 +19,8 @@ public class AnswerMapper {
         answerResponse.setContent(answer.getContent());
         answerResponse.setViralPoints(answer.getViralPoints());
 
-        UserResponse user = new UserResponse(answer.getUser());
+        UserResponse user = null;
+        if(answer.getUser()!=null) user = new UserResponse(answer.getUser());
 
         answerResponse.setAuthor(user);
 
@@ -53,13 +54,13 @@ public class AnswerMapper {
     // Phương thức tùy chỉnh để đếm upvotes
     public static Long countUpvotes(Set<AnswerVote> votes) {
         if (votes == null) return 0L;
-        return votes.stream().filter(AnswerVote::getIsUpvote).count();
+        return votes.stream().filter(x-> Boolean.TRUE.equals(x.getIsUpvote())).count();
     }
 
     // Phương thức tùy chỉnh để đếm downvotes
     public static Long countDownvotes(Set<AnswerVote> votes) {
         if (votes == null) return 0L;
-        return votes.stream().filter(vote -> !vote.getIsUpvote()).count();
+        return votes.stream().filter(vote -> Boolean.FALSE.equals(vote.getIsUpvote())).count();
     }
 }
 

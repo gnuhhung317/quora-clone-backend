@@ -11,7 +11,7 @@ import java.util.List;
 public interface TopicService {
 
     List<TopicResponse> getAllTopics();
-
+    List<TopicResponse> suggestTopic();
     TopicResponse getTopicById(Long id);
     Integer countFollowers(Long id);
     Integer countQuestions(Long id);

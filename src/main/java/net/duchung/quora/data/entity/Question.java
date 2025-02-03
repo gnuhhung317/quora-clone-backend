@@ -16,8 +16,11 @@ import java.util.Set;
 @Table(name = "questions")
 public class Question extends BaseEntity {
 
-
+    @Lob
     private String title;
+
+    @Lob
+    private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id",nullable = false)

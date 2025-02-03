@@ -1,6 +1,7 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
+import java.util.Objects;
 import net.duchung.quora.data.entity.User;
 import net.duchung.quora.common.exception.AccessDeniedException;
 import net.duchung.quora.service.AuthService;
@@ -51,11 +52,11 @@ public class AnswerVoteServiceImpl implements VoteService
             return castVoteResponse;
         }else {
             AnswerVote answerVote = answerVoteOpt.get();
-            if(answerVote.getIsUpvote() != isUpvote) {
+            if(!Objects.equals(answerVote.getIsUpvote(), isUpvote)) {
                 answerVote.setIsUpvote(isUpvote);
 
                 // change viral points;
-                if(isUpvote) {
+                if(Boolean.TRUE.equals(isUpvote)) {
                     answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()+ Constant.VOTE_POINTS*2);
                 }else {
                     answerVote.getAnswer().setViralPoints(answerVote.getAnswer().getViralPoints()- Constant.VOTE_POINTS*2);

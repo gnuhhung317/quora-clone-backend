@@ -13,17 +13,21 @@ public class UserResponse {
     private String fullName;
     private String avatarUrl;
     private boolean isFollowed;
+    private int follower;
+    private int following;
 
     public UserResponse(User user){
         this.id = user.getId();
         this.fullName = user.getFullName();
         this.avatarUrl = user.getAvatarUrl();
-        for (FollowUser follower : user.getFollowers()) {
-            if (follower.getFollower().getId().equals(user.getId())) {
-                this.isFollowed = true;
-                break;
-            }
-        }
+        this.follower = user.getFollowers().size();
+        this.following = user.getFollowings().size();
+//        for (FollowUser follower : user.getFollowers()) {
+//            if (follower.getFollower().getId().equals(user.getId())) {
+//                this.isFollowed = true;
+//                break;
+//            }
+//        }
     }
 
 }

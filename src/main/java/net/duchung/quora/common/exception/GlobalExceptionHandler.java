@@ -2,49 +2,53 @@ package net.duchung.quora.common.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.io.SerializationException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.ServletException;
-import net.duchung.quora.data.response.ApiResponse;
+import net.duchung.quora.data.response.BaseResponse;
 import org.springframework.beans.PropertyAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({DataNotFoundException.class,EntityNotFoundException.class, NoResourceFoundException.class})
-    public ResponseEntity<String> handleDataNotFoundException(RuntimeException e ) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    @ExceptionHandler({DataNotFoundException.class, EntityNotFoundException.class, NoResourceFoundException.class})
+    public BaseResponse<Object> handleDataNotFoundException(RuntimeException e) {
+        return getErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
-    @ExceptionHandler({HttpMessageNotReadableException.class,ServletException.class,IllegalArgumentException.class,PropertyAccessException.class,HttpMessageConversionException.class})
-    public ResponseEntity<String> handleBadRequestException(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, ServletException.class, IllegalArgumentException.class, PropertyAccessException.class, HttpMessageConversionException.class})
+    public BaseResponse<Object> handleBadRequestException(RuntimeException e) {
+        return getErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
-    @ExceptionHandler({JwtAuthenticationException.class,JwtException.class,UsernameNotFoundException.class})
-    public ResponseEntity<String> handleAuthenticationException(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+
+    @ExceptionHandler({JwtAuthenticationException.class, ExpiredJwtException.class, JwtException.class, UsernameNotFoundException.class})
+    public BaseResponse<Object> handleAuthenticationException(RuntimeException e) {
+        return getErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(e.getMessage());
+    public BaseResponse<Object> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return getErrorResponse(HttpStatus.METHOD_NOT_ALLOWED, e.getMessage());
     }
+
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<String> handleAccessDeniedException(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    public BaseResponse<Object> handleAccessDeniedException(RuntimeException e) {
+        return getErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
     }
+
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    public BaseResponse<Object> handleRuntimeException(RuntimeException e) {
+        return getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
-    private ApiResponse<?> getErrorResponse(HttpStatus status, String message) {
-        return ApiResponse.error(status.value(), message);
+
+    private BaseResponse<Object> getErrorResponse(HttpStatus status, String message) {
+        return BaseResponse.error(status.value(), message);
     }
 }

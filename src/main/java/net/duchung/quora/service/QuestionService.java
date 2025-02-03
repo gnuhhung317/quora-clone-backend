@@ -17,6 +17,7 @@ public interface QuestionService {
 
     List<QuestionResponse> getQuestionsByUserId(Long id);
 
+    List<QuestionResponse> getQuestionsByTopicId(Long topicId);
     List<QuestionResponse> getQuestionsByCurrentUser();
 
     FollowQuestionResponse followQuestion(Long id);

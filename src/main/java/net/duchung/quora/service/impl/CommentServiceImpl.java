@@ -1,9 +1,13 @@
 package net.duchung.quora.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import net.duchung.quora.common.exception.AccessDeniedException;
+import net.duchung.quora.data.entity.BaseEntity;
+import net.duchung.quora.data.entity.vote.CommentVote;
 import net.duchung.quora.data.request.CommentRequest;
 import net.duchung.quora.data.response.CommentResponse;
+import net.duchung.quora.repository.CommentVoteRepository;
 import net.duchung.quora.service.AuthService;
 import net.duchung.quora.common.utils.Constant;
 import net.duchung.quora.data.entity.Answer;
@@ -20,19 +24,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
-    @Autowired
-    CommentRepository commentRepository;
-    @Autowired
-    AnswerRepository answerRepository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    AuthService authService;
+    private final CommentRepository commentRepository;
+    private final AnswerRepository answerRepository;
+    private final UserRepository userRepository;
+    private final AuthService authService;
+    private final CommentVoteRepository commentVoteRepository;
     @Override
     @Transactional
     public CommentResponse createComment(CommentRequest commentDto) {
@@ -108,7 +111,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentResponse> getCommentsByAnswerId(Long answerId) {
-        return commentRepository.findByAnswerId(answerId).stream().map(CommentResponse::new).toList();
+        List<CommentResponse> commentResponses =  commentRepository.findByAnswerId(answerId).stream().map(CommentResponse::new).toList();
+        Map<Long,Boolean> commentVotes = commentVoteRepository.findAllByUserCommentVote(commentResponses.stream().map(CommentResponse::getId).toList(),authService.getCurrentUser().getId())
+                .stream().collect(Collectors.toMap(x -> x.getComment().getId(), CommentVote::getIsUpvote));
+        for (CommentResponse commentResponse : commentResponses) {
+            commentResponse.setIsUpvoted(commentVotes.getOrDefault(commentResponse.getId(),null));
+        }
+        return commentResponses;
     }
 
 

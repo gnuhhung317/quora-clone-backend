@@ -28,6 +28,7 @@ import java.util.Set;
 
 public class Answer extends BaseEntity {
 
+    @Lob
     private String content;
 
     private long viralPoints;

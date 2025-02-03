@@ -2,6 +2,8 @@ package net.duchung.quora.controller;
 
 import net.duchung.quora.data.request.LoginRequest;
 import net.duchung.quora.data.request.RegisterRequest;
+import net.duchung.quora.data.response.BaseResponse;
+import net.duchung.quora.data.response.LoginResponse;
 import net.duchung.quora.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +16,9 @@ public class AuthController {
     @Autowired
     private AuthService authService;
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public BaseResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
 
-        return ResponseEntity.ok(authService.login(loginRequest.getEmail(), loginRequest.getPassword()));
+        return BaseResponse.success(authService.login(loginRequest.getEmail(), loginRequest.getPassword()));
     }
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {

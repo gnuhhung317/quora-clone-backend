@@ -18,6 +18,7 @@ public class CommentResponse extends BaseDto {
     private UserResponse author;
     private Long answerId;
     private CommentInteractionResponse interaction;
+    private Boolean isUpvoted;
 
     public CommentResponse(Comment comment) {
         this.setId(comment.getId());

@@ -1,13 +1,15 @@
 package net.duchung.quora.service.impl;
 
+import jakarta.transaction.Transactional;
 import net.duchung.quora.common.exception.DataNotFoundException;
+import net.duchung.quora.common.security.jwt.JwtUtil;
+import net.duchung.quora.data.entity.User;
 import net.duchung.quora.data.entity.VerificationToken;
 import net.duchung.quora.data.request.RegisterRequest;
-import net.duchung.quora.data.entity.User;
+import net.duchung.quora.data.response.LoginResponse;
 import net.duchung.quora.repository.UserRepository;
 import net.duchung.quora.repository.VerificationTokenRepository;
 import net.duchung.quora.service.AuthService;
-import net.duchung.quora.common.security.jwt.JwtUtil;
 import net.duchung.quora.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,28 +42,29 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public String login(String email, String password) {
+    public LoginResponse login(String email, String password) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Email or password incorrect"));
-        if(!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Email or password incorrect");
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new DataNotFoundException("Email or password incorrect");
         } else if (!user.isActive()) {
             throw new DataNotFoundException("User is not active");
         }
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password, Collections.emptySet());
         authenticationManager.authenticate(authenticationToken);
-        return jwtUtil.generateToken(user);
+        return new LoginResponse(jwtUtil.generateToken(user));
     }
 
     @Override
+    @Transactional
     public String register(RegisterRequest registerRequest) {
         String email = registerRequest.getEmail();
         String password = registerRequest.getPassword();
         String retypePassword = registerRequest.getRetypePassword();
         String fullName = registerRequest.getFullName();
-        if(!password.equals(retypePassword)) {
+        if (!password.equals(retypePassword)) {
             throw new IllegalArgumentException("Passwords do not match");
         }
-        if(userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Email already exists");
         }
         User user = new User();
@@ -69,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setFullName(fullName);
         User savedUser = userRepository.save(user);
-        VerificationToken verificationToken = new VerificationToken(UUID.randomUUID().toString(),savedUser);
+        VerificationToken verificationToken = new VerificationToken(UUID.randomUUID().toString(), savedUser);
         verificationTokenRepository.save(verificationToken);
         mailService.sendVerificationLinkToEmail(email, verificationToken.getToken());
         return "User " + savedUser.getEmail() + " registered successfully! Please check your email for verification.";
@@ -85,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String verify(String code) {
         VerificationToken verificationToken = verificationTokenRepository.findByToken(code);
-        if(verificationToken == null) {
+        if (verificationToken == null) {
             throw new DataNotFoundException("Verification token not found");
         }
         User user = verificationToken.getUser();

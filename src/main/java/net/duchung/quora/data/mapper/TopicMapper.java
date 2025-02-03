@@ -2,6 +2,7 @@ package net.duchung.quora.data.mapper;
 
 import net.duchung.quora.data.dto.TopicDto;
 import net.duchung.quora.data.entity.Topic;
+import net.duchung.quora.data.response.TopicResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

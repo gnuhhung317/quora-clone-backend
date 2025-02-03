@@ -1,11 +1,14 @@
 package net.duchung.quora.common.security.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.duchung.quora.common.exception.JwtAuthenticationException;
 import net.duchung.quora.common.security.CustomUserDetailsService;
+import net.duchung.quora.data.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,29 +32,40 @@ public class JwtFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request,response);
                 return;
             }
-            final String authHeader = request.getHeader("Authorization");
-            if(authHeader!=null && authHeader.startsWith("Bearer ")){
-                String token = authHeader.substring(7);
+            try {
+                final String authHeader = request.getHeader("Authorization");
+                if(authHeader!=null && authHeader.startsWith("Bearer ")){
+                    String token = authHeader.substring(7);
 
-                String phoneNumber = jwtUtil.extractEmail(token);
-                if (phoneNumber !=null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = customUserDetailsService
-                            .loadUserByUsername(phoneNumber);
-                    if (jwtUtil.validateToken(token, userDetails)) {
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    String phoneNumber = jwtUtil.extractEmail(token);
+                    if (phoneNumber !=null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UserDetails userDetails = customUserDetailsService
+                                .loadUserByUsername(phoneNumber);
+                        if (jwtUtil.validateToken(token, userDetails)) {
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+                            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
 
+                        }
                     }
-                }
-                filterChain.doFilter(request,response);
+                    filterChain.doFilter(request,response);
 
-            }else {
-                throw new JwtAuthenticationException("Token's invalid");
+                }else {
+                    throw new JwtAuthenticationException("Token's invalid");
+                }
+            } catch (JwtAuthenticationException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             }
-        } catch (JwtAuthenticationException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-        }
+            } catch (ExpiredJwtException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("JWT expired: " + e.getMessage());
+                return; // Stop further processing
+            } catch (JwtException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(BaseResponse.error(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage()).toString());
+                return; // Stop further processing
+            }
+
     }
     public boolean isByPassUrl(String url) {
         return url.contains("/auth/login") || url.contains("/auth/register")||url.contains("/swagger-ui")||url.contains("/v3/api-docs");

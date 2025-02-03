@@ -15,6 +15,7 @@ public class TopicResponse {
     private String name;
     private int questionCount;
     private int followerCount;
+    private boolean isFollowed;
 
     public TopicResponse(Topic topic, int questionCount, int followerCount) {
         this.id = topic.getId();

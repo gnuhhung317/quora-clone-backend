@@ -15,14 +15,16 @@ import java.util.Optional;
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
-    @Query("SELECT a FROM Answer a" +
-//            "JOIN Question q ON a.question.id = q.id" +
-            " WHERE" +
-            " lower(a.content) LIKE  lower(concat('%',:content,'%'))" +
-            " OR lower(a.question.title) LIKE  lower(concat('%',:content,'%'))" +
-            " AND (:topic is null OR  :topic in (SELECT t.name FROM Topic t))")
-    Page<Answer> searchByContent(@Param("content") String keyword,@Param("topic") String topic, Pageable pageable);
-
+    @Query("""
+       SELECT a 
+       FROM Answer a
+       WHERE lower(cast(a.content as string)) LIKE lower(concat('%', :content, '%'))
+          OR lower(cast(a.question.title as string)) LIKE lower(concat('%', :content, '%'))
+          AND (:topic IS NULL OR :topic IN (SELECT t.name FROM Topic t))
+       """)
+    Page<Answer> searchByContent(@Param("content") String keyword,
+                                 @Param("topic") String topic,
+                                 Pageable pageable);
     @Query("SELECT c.answer FROM Comment c WHERE c.id = :commentId")
     Optional<Answer> findByCommentId(Long commentId);
 

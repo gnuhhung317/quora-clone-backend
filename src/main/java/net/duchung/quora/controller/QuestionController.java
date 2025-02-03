@@ -37,6 +37,11 @@ public class QuestionController {
         QuestionResponse question = questionService.getQuestionById(id);
         return ResponseEntity.ok(question);
     }
+    @GetMapping("/topics/{topicId}")
+    public ResponseEntity<List<QuestionResponse>> getQuestionsByTopicId(@PathVariable Long topicId) {
+        List<QuestionResponse> questions = questionService.getQuestionsByTopicId(topicId);
+        return ResponseEntity.ok(questions);
+    }
     @GetMapping("")
     public ResponseEntity<List<QuestionResponse>> getQuestionsByUserId(@RequestParam(required = false) Long userId) {
         if(userId == null) {

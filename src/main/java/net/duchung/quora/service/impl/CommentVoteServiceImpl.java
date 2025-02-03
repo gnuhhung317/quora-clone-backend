@@ -1,5 +1,6 @@
 package net.duchung.quora.service.impl;
 
+import jakarta.transaction.Transactional;
 import net.duchung.quora.data.entity.User;
 import net.duchung.quora.common.exception.AccessDeniedException;
 import net.duchung.quora.service.AuthService;
@@ -31,6 +32,7 @@ public class CommentVoteServiceImpl implements VoteService {
     private AuthService authService;
 
     @Override
+    @Transactional
     public CastVoteResponse castVote(Long commentId,  Boolean isUpvote) {
         User user = authService.getCurrentUser();
 
