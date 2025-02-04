@@ -6,8 +6,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import net.duchung.quora.common.exception.JwtAuthenticationException;
 import net.duchung.quora.common.security.CustomUserDetailsService;
+import net.duchung.quora.common.security.JwtBlacklistService;
 import net.duchung.quora.data.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,11 +22,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtBlacklistService jwtBlacklistService;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
@@ -37,10 +39,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 if(authHeader!=null && authHeader.startsWith("Bearer ")){
                     String token = authHeader.substring(7);
 
-                    String phoneNumber = jwtUtil.extractEmail(token);
-                    if (phoneNumber !=null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    String email = jwtUtil.extractEmail(token);
+                    if (email !=null && !jwtBlacklistService.isBlackListed(token)) {
                         UserDetails userDetails = customUserDetailsService
-                                .loadUserByUsername(phoneNumber);
+                                .loadUserByUsername(email);
                         if (jwtUtil.validateToken(token, userDetails)) {
                             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

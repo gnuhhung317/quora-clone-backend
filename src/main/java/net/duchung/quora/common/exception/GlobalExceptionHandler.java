@@ -9,6 +9,8 @@ import org.springframework.beans.PropertyAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,5 +52,15 @@ public class GlobalExceptionHandler {
 
     private BaseResponse<Object> getErrorResponse(HttpStatus status, String message) {
         return BaseResponse.error(status.value(), message);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public BaseResponse<Object> handleBadCredentials() {
+        return getErrorResponse(HttpStatus.UNAUTHORIZED, "Bad credentials");
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public BaseResponse<Object> handleDisabledUser() {
+        return getErrorResponse(HttpStatus.UNAUTHORIZED, "User is disabled");
     }
 }

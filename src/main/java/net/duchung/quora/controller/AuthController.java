@@ -1,20 +1,22 @@
 package net.duchung.quora.controller;
 
+import lombok.AllArgsConstructor;
 import net.duchung.quora.data.request.LoginRequest;
 import net.duchung.quora.data.request.RegisterRequest;
 import net.duchung.quora.data.response.BaseResponse;
 import net.duchung.quora.data.response.LoginResponse;
 import net.duchung.quora.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("${api.base.url}/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
     @PostMapping("/login")
     public BaseResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
 
@@ -27,6 +29,10 @@ public class AuthController {
     @GetMapping("/register/verify")
     public ResponseEntity<String> verify(@RequestParam("code") String code) {
         return ResponseEntity.ok(authService.verify(code));
+    }
+    @GetMapping("/logout")
+    public BaseResponse<String> logout(@RequestHeader("Authorization") String authHeader) {
+        return BaseResponse.success(authService.logout(authHeader));
     }
 
 }

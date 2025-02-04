@@ -14,5 +14,7 @@ public interface AuthService {
 
     String verify(String code);
 
+    String logout(String authHeader);
+
     User getCurrentUser();
 }

@@ -19,15 +19,14 @@ public interface UserService {
     UserProfile updateUser(UserRequest userDto);
 
     UserProfile getUserById(Long id);
+
     UserProfile getProfile();
 
     void deleteUserById(Long id);
 
     FollowUserResponse follow(Long followingId);
+
     FollowUserResponse unfollow(Long followingId);
-
-
-
 
     String uploadAvatar(MultipartFile avatar);
 

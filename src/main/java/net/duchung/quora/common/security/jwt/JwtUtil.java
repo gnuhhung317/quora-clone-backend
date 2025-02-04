@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import net.duchung.quora.data.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,18 +20,19 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
+    @Getter
     @Value("${jwt.expiration}")
     private int expirationTime;
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    public String generateToken(User user){
+    public String generateToken(UserDetails user){
         Map<String, Object> claims = new HashMap<>();
-        claims.put("email",user.getEmail());
+        claims.put("email",user.getUsername());
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(user.getEmail())
+                .subject(user.getUsername())
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
